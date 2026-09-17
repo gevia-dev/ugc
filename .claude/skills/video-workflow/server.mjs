@@ -14,10 +14,23 @@
  *   GET  /api/frame?dir=&name=      -> bytes da imagem (lida do caminho absoluto do beats.mjs)
  *   POST /api/beat                  -> { ok, changed, changedKeys, beat }   (chama writeBeat)
  *
- * EXTENSÃO (parte 3 — página de assets): não edite o dispatcher. Importe este
- * módulo e use `route(method, pathname, handler)` para registrar rotas novas,
- * e os helpers exportados `sendJson`, `sendFile`, `readJsonBody`, `safeProjectDir`.
+ * EXTENSÃO: não edite o dispatcher. Importe este módulo e use
+ * `route(method, pathname, handler)` para registrar rotas novas, e os helpers
+ * exportados `sendJson`, `sendFile`, `readJsonBody`, `safeProjectDir`.
  * Qualquer `.html` novo colocado nesta pasta já é servido pelo handler estático.
+ *
+ * A parte 3 (página de assets) já usa esse ponto, em `assets-api.mjs`:
+ *
+ *   GET  /api/assets                           -> biblioteca de assets
+ *   GET  /api/asset/file?slug=&name=           -> bytes de um arquivo da biblioteca
+ *   POST /api/asset              (JSON)        -> cria/atualiza a entrada de um asset
+ *   POST /api/asset/file?slug=&name=(binário)  -> grava em assets/<slug>/
+ *   GET  /api/recurring?dir=<projeto>          -> candidatos recorrentes + casamento
+ *   GET  /api/approved?dir=<projeto>           -> estado aprovado do projeto
+ *   POST /api/approved           (JSON)        -> registra UMA decisão de tela
+ *
+ * Quem importa este módulo como biblioteca deve aguardar `extensionsReady`
+ * antes de chamar `handle()`, senão as rotas acima ainda não existem.
  */
 
 import { createServer } from 'node:http';
@@ -325,6 +338,22 @@ export function createVideoWorkflowServer() {
 }
 
 // ---------------------------------------------------------------------------
+// extensões (parte 3 — página de assets)
+//
+// Registra /api/assets, /api/asset, /api/asset/file, /api/recurring e
+// /api/approved via `route()` — o dispatcher `handle()` não muda.
+//
+// O import é dinâmico e NÃO é aguardado aqui de propósito: `assets-api.mjs`
+// importa este módulo de volta (usando o ponto de extensão documentado no
+// topo), e um `await import()` no meio desse ciclo travaria a avaliação dos
+// dois. Sem o `await`, este módulo termina, o ciclo resolve, e as rotas ficam
+// registradas no microtask seguinte. Quem sobe o servidor espera por
+// `extensionsReady`; quem importa como biblioteca também deve esperar.
+// ---------------------------------------------------------------------------
+
+export const extensionsReady = import('./assets-api.mjs');
+
+// ---------------------------------------------------------------------------
 // CLI: node server.mjs [--port N] [--root DIR]
 // ---------------------------------------------------------------------------
 
@@ -356,9 +385,12 @@ export function main(argv = []) {
     }
     throw err;
   });
-  server.listen(port, host, () => {
-    console.log(`[video-workflow] raiz    : ${ROOT}`);
-    console.log(`[video-workflow] ouvindo : ${host}:${port}`);
+  // só abre a porta depois que as rotas da parte 3 estiverem registradas
+  extensionsReady.then(() => {
+    server.listen(port, host, () => {
+      console.log(`[video-workflow] raiz    : ${ROOT}`);
+      console.log(`[video-workflow] ouvindo : ${host}:${port}`);
+    });
   });
   return server;
 }

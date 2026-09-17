@@ -471,7 +471,7 @@ kbd {
 
   <nav class="tabs" aria-label="Seções">
     <a class="tab is-active" href="#" id="tabBeats">Beats</a>
-    <!-- parte 3 acrescenta aqui a aba "Assets" -->
+    <a class="tab" href="assets.html" id="tabAssets">Assets</a>
   </nav>
 
   <span class="topbar-spacer"></span>
@@ -698,6 +698,7 @@ function render() {
 
   $('brandSub').textContent = p.dir + ' · ' + p.beats.length + ' beats · ' + p.frameCount + ' frames';
   document.title = 'BEAT ' + beat.position + '/' + beat.total + ' · ' + p.dir;
+  $('tabAssets').href = 'assets.html#/' + encodeURIComponent(p.dir);
 
   renderRail();
   renderFrame(beat);
@@ -791,10 +792,20 @@ function renderBeat(beat) {
   for (const f of FIELDS) bindValue($('f_' + f.key), beat[f.key] ?? '');
 }
 
+const ARROW_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>';
+
 function renderPager(beat) {
   const beats = state.project.beats;
   $('prevBtn').disabled = beat.position <= 1;
-  $('nextBtn').disabled = beat.position >= beat.total;
+
+  // Depois da última página de beat vem a página de ASSETS.
+  const isLast = beat.position >= beat.total;
+  const next = $('nextBtn');
+  next.disabled = false;
+  next.dataset.target = isLast ? 'assets' : 'beat';
+  next.innerHTML = (isLast ? 'Assets' : 'Próximo') + ' ' + ARROW_SVG;
+  next.title = isLast ? 'Última página de beat — segue para a página de assets' : '';
+
   $('dots').innerHTML = beats.map((b) =>
     '<button class="dot-nav' + (b.id === state.beatId ? ' is-active' : '') + '" data-id="' + escapeHtml(b.id) + '" ' +
     'title="' + escapeHtml('BEAT ' + b.position + ' — ' + b.name) + '"></button>'
@@ -877,15 +888,26 @@ async function navigateTo(id) {
   goTo(state.dir, id);
 }
 
+/** Sai das páginas de beat para a página de assets do mesmo projeto. */
+async function goAssets() {
+  await flushPending();
+  location.href = 'assets.html#/' + encodeURIComponent(state.dir);
+}
+
 async function step(delta) {
   const beat = currentBeat();
   if (!beat) return;
   const next = state.project.beats[beat.position - 1 + delta];
-  if (next) await navigateTo(next.id);
+  if (next) { await navigateTo(next.id); return; }
+  // passou da última página de beat -> assets
+  if (delta > 0) await goAssets();
 }
 
 $('prevBtn').addEventListener('click', () => step(-1));
-$('nextBtn').addEventListener('click', () => step(1));
+$('nextBtn').addEventListener('click', () => {
+  if ($('nextBtn').dataset.target === 'assets') goAssets();
+  else step(1);
+});
 
 document.addEventListener('keydown', (ev) => {
   const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || '');
