@@ -1,0 +1,1207 @@
+{
+  "backend": "local:faster-whisper",
+  "model": "medium",
+  "device": "cpu",
+  "compute_type": "int8",
+  "fell_back_from": null,
+  "cuda_dll_dirs_registered": 3,
+  "language": "en",
+  "language_probability": 1.0,
+  "audio_duration_s": 59.18,
+  "model_load_s": 14.0,
+  "transcribe_s": 66.9,
+  "realtime_factor": 0.88,
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 5.08,
+      "text": "Which American pizza style is the best? New York, Chicago, or New Haven?",
+      "avg_logprob": -0.096,
+      "no_speech_prob": 0.0,
+      "words": [
+        {
+          "start": 0.0,
+          "end": 0.4,
+          "word": " Which",
+          "probability": 0.821
+        },
+        {
+          "start": 0.4,
+          "end": 0.94,
+          "word": " American",
+          "probability": 0.958
+        },
+        {
+          "start": 0.94,
+          "end": 1.26,
+          "word": " pizza",
+          "probability": 0.955
+        },
+        {
+          "start": 1.26,
+          "end": 1.7,
+          "word": " style",
+          "probability": 0.982
+        },
+        {
+          "start": 1.7,
+          "end": 2.2,
+          "word": " is",
+          "probability": 0.991
+        },
+        {
+          "start": 2.2,
+          "end": 2.36,
+          "word": " the",
+          "probability": 0.971
+        },
+        {
+          "start": 2.36,
+          "end": 2.78,
+          "word": " best?",
+          "probability": 0.996
+        },
+        {
+          "start": 2.86,
+          "end": 3.08,
+          "word": " New",
+          "probability": 0.936
+        },
+        {
+          "start": 3.08,
+          "end": 3.34,
+          "word": " York,",
+          "probability": 0.997
+        },
+        {
+          "start": 3.58,
+          "end": 4.14,
+          "word": " Chicago,",
+          "probability": 0.999
+        },
+        {
+          "start": 4.46,
+          "end": 4.62,
+          "word": " or",
+          "probability": 0.99
+        },
+        {
+          "start": 4.62,
+          "end": 4.82,
+          "word": " New",
+          "probability": 0.994
+        },
+        {
+          "start": 4.82,
+          "end": 5.08,
+          "word": " Haven?",
+          "probability": 0.979
+        }
+      ]
+    },
+    {
+      "start": 5.44,
+      "end": 8.5,
+      "text": "Let's start with Chicago Deep Dish.",
+      "avg_logprob": -0.096,
+      "no_speech_prob": 0.0,
+      "words": [
+        {
+          "start": 5.44,
+          "end": 5.62,
+          "word": " Let's",
+          "probability": 0.971
+        },
+        {
+          "start": 5.62,
+          "end": 6.06,
+          "word": " start",
+          "probability": 0.997
+        },
+        {
+          "start": 6.06,
+          "end": 6.36,
+          "word": " with",
+          "probability": 0.988
+        },
+        {
+          "start": 6.36,
+          "end": 7.28,
+          "word": " Chicago",
+          "probability": 0.986
+        },
+        {
+          "start": 7.28,
+          "end": 8.0,
+          "word": " Deep",
+          "probability": 0.345
+        },
+        {
+          "start": 8.0,
+          "end": 8.5,
+          "word": " Dish.",
+          "probability": 0.987
+        }
+      ]
+    },
+    {
+      "start": 8.68,
+      "end": 10.72,
+      "text": "This pizza is a real fork and knife job.",
+      "avg_logprob": -0.096,
+      "no_speech_prob": 0.0,
+      "words": [
+        {
+          "start": 8.68,
+          "end": 8.74,
+          "word": " This",
+          "probability": 0.808
+        },
+        {
+          "start": 8.74,
+          "end": 9.1,
+          "word": " pizza",
+          "probability": 0.993
+        },
+        {
+          "start": 9.1,
+          "end": 9.42,
+          "word": " is",
+          "probability": 0.995
+        },
+        {
+          "start": 9.42,
+          "end": 9.46,
+          "word": " a",
+          "probability": 0.992
+        },
+        {
+          "start": 9.46,
+          "end": 9.86,
+          "word": " real",
+          "probability": 0.996
+        },
+        {
+          "start": 9.86,
+          "end": 10.08,
+          "word": " fork",
+          "probability": 0.997
+        },
+        {
+          "start": 10.08,
+          "end": 10.24,
+          "word": " and",
+          "probability": 0.744
+        },
+        {
+          "start": 10.24,
+          "end": 10.42,
+          "word": " knife",
+          "probability": 0.996
+        },
+        {
+          "start": 10.42,
+          "end": 10.72,
+          "word": " job.",
+          "probability": 0.997
+        }
+      ]
+    },
+    {
+      "start": 10.98,
+      "end": 14.82,
+      "text": "The crust is thick and buttery, and the toppings are inverted with the sauce on top.",
+      "avg_logprob": -0.096,
+      "no_speech_prob": 0.0,
+      "words": [
+        {
+          "start": 10.98,
+          "end": 11.12,
+          "word": " The",
+          "probability": 0.987
+        },
+        {
+          "start": 11.12,
+          "end": 11.36,
+          "word": " crust",
+          "probability": 0.999
+        },
+        {
+          "start": 11.36,
+          "end": 11.62,
+          "word": " is",
+          "probability": 0.998
+        },
+        {
+          "start": 11.62,
+          "end": 11.76,
+          "word": " thick",
+          "probability": 0.997
+        },
+        {
+          "start": 11.76,
+          "end": 11.94,
+          "word": " and",
+          "probability": 0.997
+        },
+        {
+          "start": 11.94,
+          "end": 12.3,
+          "word": " buttery,",
+          "probability": 0.998
+        },
+        {
+          "start": 12.36,
+          "end": 12.46,
+          "word": " and",
+          "probability": 0.991
+        },
+        {
+          "start": 12.46,
+          "end": 12.62,
+          "word": " the",
+          "probability": 0.997
+        },
+        {
+          "start": 12.62,
+          "end": 12.86,
+          "word": " toppings",
+          "probability": 0.995
+        },
+        {
+          "start": 12.86,
+          "end": 13.12,
+          "word": " are",
+          "probability": 0.997
+        },
+        {
+          "start": 13.12,
+          "end": 13.42,
+          "word": " inverted",
+          "probability": 0.996
+        },
+        {
+          "start": 13.42,
+          "end": 13.68,
+          "word": " with",
+          "probability": 0.931
+        },
+        {
+          "start": 13.68,
+          "end": 13.88,
+          "word": " the",
+          "probability": 0.964
+        },
+        {
+          "start": 13.88,
+          "end": 14.24,
+          "word": " sauce",
+          "probability": 0.998
+        },
+        {
+          "start": 14.24,
+          "end": 14.56,
+          "word": " on",
+          "probability": 0.996
+        },
+        {
+          "start": 14.56,
+          "end": 14.82,
+          "word": " top.",
+          "probability": 0.993
+        }
+      ]
+    },
+    {
+      "start": 15.06,
+      "end": 19.54,
+      "text": "This is to protect the cheese and other toppings, bottomings, or fillings,",
+      "avg_logprob": -0.096,
+      "no_speech_prob": 0.0,
+      "words": [
+        {
+          "start": 15.06,
+          "end": 15.24,
+          "word": " This",
+          "probability": 0.994
+        },
+        {
+          "start": 15.24,
+          "end": 15.42,
+          "word": " is",
+          "probability": 0.992
+        },
+        {
+          "start": 15.42,
+          "end": 15.6,
+          "word": " to",
+          "probability": 0.996
+        },
+        {
+          "start": 15.6,
+          "end": 15.9,
+          "word": " protect",
+          "probability": 0.996
+        },
+        {
+          "start": 15.9,
+          "end": 16.14,
+          "word": " the",
+          "probability": 0.988
+        },
+        {
+          "start": 16.14,
+          "end": 16.38,
+          "word": " cheese",
+          "probability": 0.998
+        },
+        {
+          "start": 16.38,
+          "end": 16.56,
+          "word": " and",
+          "probability": 0.984
+        },
+        {
+          "start": 16.56,
+          "end": 16.8,
+          "word": " other",
+          "probability": 0.979
+        },
+        {
+          "start": 16.8,
+          "end": 17.32,
+          "word": " toppings,",
+          "probability": 0.984
+        },
+        {
+          "start": 17.66,
+          "end": 18.14,
+          "word": " bottomings,",
+          "probability": 0.96
+        },
+        {
+          "start": 18.96,
+          "end": 19.14,
+          "word": " or",
+          "probability": 0.977
+        },
+        {
+          "start": 19.14,
+          "end": 19.54,
+          "word": " fillings,",
+          "probability": 0.977
+        }
+      ]
+    },
+    {
+      "start": 19.92,
+      "end": 23.9,
+      "text": "from burning while the pizza cooks for 30 minutes at around 425 degrees.",
+      "avg_logprob": -0.096,
+      "no_speech_prob": 0.0,
+      "words": [
+        {
+          "start": 19.92,
+          "end": 19.98,
+          "word": " from",
+          "probability": 0.999
+        },
+        {
+          "start": 19.98,
+          "end": 20.32,
+          "word": " burning",
+          "probability": 0.998
+        },
+        {
+          "start": 20.32,
+          "end": 20.58,
+          "word": " while",
+          "probability": 0.876
+        },
+        {
+          "start": 20.58,
+          "end": 20.72,
+          "word": " the",
+          "probability": 0.991
+        },
+        {
+          "start": 20.72,
+          "end": 20.9,
+          "word": " pizza",
+          "probability": 0.999
+        },
+        {
+          "start": 20.9,
+          "end": 21.2,
+          "word": " cooks",
+          "probability": 0.994
+        },
+        {
+          "start": 21.2,
+          "end": 21.5,
+          "word": " for",
+          "probability": 0.978
+        },
+        {
+          "start": 21.5,
+          "end": 21.7,
+          "word": " 30",
+          "probability": 0.941
+        },
+        {
+          "start": 21.7,
+          "end": 22.08,
+          "word": " minutes",
+          "probability": 0.995
+        },
+        {
+          "start": 22.08,
+          "end": 22.26,
+          "word": " at",
+          "probability": 0.944
+        },
+        {
+          "start": 22.26,
+          "end": 22.68,
+          "word": " around",
+          "probability": 0.964
+        },
+        {
+          "start": 22.68,
+          "end": 23.34,
+          "word": " 425",
+          "probability": 0.996
+        },
+        {
+          "start": 23.34,
+          "end": 23.9,
+          "word": " degrees.",
+          "probability": 0.962
+        }
+      ]
+    },
+    {
+      "start": 24.1,
+      "end": 27.22,
+      "text": "The New York slice is as iconic as the Statue of Liberty.",
+      "avg_logprob": -0.096,
+      "no_speech_prob": 0.0,
+      "words": [
+        {
+          "start": 24.1,
+          "end": 24.36,
+          "word": " The",
+          "probability": 0.983
+        },
+        {
+          "start": 24.36,
+          "end": 24.58,
+          "word": " New",
+          "probability": 0.991
+        },
+        {
+          "start": 24.58,
+          "end": 24.8,
+          "word": " York",
+          "probability": 1.0
+        },
+        {
+          "start": 24.8,
+          "end": 25.12,
+          "word": " slice",
+          "probability": 0.857
+        },
+        {
+          "start": 25.12,
+          "end": 25.36,
+          "word": " is",
+          "probability": 0.997
+        },
+        {
+          "start": 25.36,
+          "end": 25.54,
+          "word": " as",
+          "probability": 0.994
+        },
+        {
+          "start": 25.54,
+          "end": 25.96,
+          "word": " iconic",
+          "probability": 0.998
+        },
+        {
+          "start": 25.96,
+          "end": 26.26,
+          "word": " as",
+          "probability": 0.996
+        },
+        {
+          "start": 26.26,
+          "end": 26.54,
+          "word": " the",
+          "probability": 0.984
+        },
+        {
+          "start": 26.54,
+          "end": 26.84,
+          "word": " Statue",
+          "probability": 0.981
+        },
+        {
+          "start": 26.84,
+          "end": 26.94,
+          "word": " of",
+          "probability": 0.995
+        },
+        {
+          "start": 26.94,
+          "end": 27.22,
+          "word": " Liberty.",
+          "probability": 0.998
+        }
+      ]
+    },
+    {
+      "start": 27.22,
+      "end": 30.5,
+      "text": "The dough is going to be hand-tossed in a large circle.",
+      "avg_logprob": -0.117,
+      "no_speech_prob": 0.025,
+      "words": [
+        {
+          "start": 27.22,
+          "end": 27.7,
+          "word": " The",
+          "probability": 0.506
+        },
+        {
+          "start": 27.7,
+          "end": 27.88,
+          "word": " dough",
+          "probability": 0.992
+        },
+        {
+          "start": 27.88,
+          "end": 28.08,
+          "word": " is",
+          "probability": 0.978
+        },
+        {
+          "start": 28.08,
+          "end": 28.16,
+          "word": " going",
+          "probability": 0.599
+        },
+        {
+          "start": 28.16,
+          "end": 28.26,
+          "word": " to",
+          "probability": 0.995
+        },
+        {
+          "start": 28.26,
+          "end": 28.52,
+          "word": " be",
+          "probability": 0.993
+        },
+        {
+          "start": 28.52,
+          "end": 28.84,
+          "word": " hand",
+          "probability": 0.994
+        },
+        {
+          "start": 28.84,
+          "end": 29.24,
+          "word": "-tossed",
+          "probability": 0.844
+        },
+        {
+          "start": 29.24,
+          "end": 29.34,
+          "word": " in",
+          "probability": 0.982
+        },
+        {
+          "start": 29.34,
+          "end": 29.62,
+          "word": " a",
+          "probability": 0.994
+        },
+        {
+          "start": 29.62,
+          "end": 30.0,
+          "word": " large",
+          "probability": 0.997
+        },
+        {
+          "start": 30.0,
+          "end": 30.5,
+          "word": " circle.",
+          "probability": 0.994
+        }
+      ]
+    },
+    {
+      "start": 30.82,
+      "end": 34.3,
+      "text": "Large enough so that a single slice about the size of your face is all you need.",
+      "avg_logprob": -0.117,
+      "no_speech_prob": 0.025,
+      "words": [
+        {
+          "start": 30.82,
+          "end": 30.96,
+          "word": " Large",
+          "probability": 0.97
+        },
+        {
+          "start": 30.96,
+          "end": 31.12,
+          "word": " enough",
+          "probability": 0.999
+        },
+        {
+          "start": 31.12,
+          "end": 31.26,
+          "word": " so",
+          "probability": 0.943
+        },
+        {
+          "start": 31.26,
+          "end": 31.44,
+          "word": " that",
+          "probability": 0.979
+        },
+        {
+          "start": 31.44,
+          "end": 31.58,
+          "word": " a",
+          "probability": 0.986
+        },
+        {
+          "start": 31.58,
+          "end": 31.84,
+          "word": " single",
+          "probability": 0.997
+        },
+        {
+          "start": 31.84,
+          "end": 32.14,
+          "word": " slice",
+          "probability": 0.996
+        },
+        {
+          "start": 32.14,
+          "end": 32.44,
+          "word": " about",
+          "probability": 0.717
+        },
+        {
+          "start": 32.44,
+          "end": 32.66,
+          "word": " the",
+          "probability": 0.996
+        },
+        {
+          "start": 32.66,
+          "end": 32.88,
+          "word": " size",
+          "probability": 0.999
+        },
+        {
+          "start": 32.88,
+          "end": 32.96,
+          "word": " of",
+          "probability": 0.997
+        },
+        {
+          "start": 32.96,
+          "end": 33.12,
+          "word": " your",
+          "probability": 0.997
+        },
+        {
+          "start": 33.12,
+          "end": 33.46,
+          "word": " face",
+          "probability": 0.999
+        },
+        {
+          "start": 33.46,
+          "end": 33.82,
+          "word": " is",
+          "probability": 0.904
+        },
+        {
+          "start": 33.82,
+          "end": 33.98,
+          "word": " all",
+          "probability": 0.999
+        },
+        {
+          "start": 33.98,
+          "end": 34.14,
+          "word": " you",
+          "probability": 0.998
+        },
+        {
+          "start": 34.14,
+          "end": 34.3,
+          "word": " need.",
+          "probability": 0.995
+        }
+      ]
+    },
+    {
+      "start": 34.44,
+      "end": 38.1,
+      "text": "It's cooked in a slightly hotter gas oven until it has a bulging,",
+      "avg_logprob": -0.117,
+      "no_speech_prob": 0.025,
+      "words": [
+        {
+          "start": 34.44,
+          "end": 34.68,
+          "word": " It's",
+          "probability": 0.977
+        },
+        {
+          "start": 34.68,
+          "end": 34.82,
+          "word": " cooked",
+          "probability": 0.997
+        },
+        {
+          "start": 34.82,
+          "end": 34.94,
+          "word": " in",
+          "probability": 0.998
+        },
+        {
+          "start": 34.94,
+          "end": 35.2,
+          "word": " a",
+          "probability": 0.989
+        },
+        {
+          "start": 35.2,
+          "end": 35.6,
+          "word": " slightly",
+          "probability": 0.999
+        },
+        {
+          "start": 35.6,
+          "end": 35.98,
+          "word": " hotter",
+          "probability": 0.991
+        },
+        {
+          "start": 35.98,
+          "end": 36.6,
+          "word": " gas",
+          "probability": 0.96
+        },
+        {
+          "start": 36.6,
+          "end": 36.9,
+          "word": " oven",
+          "probability": 0.983
+        },
+        {
+          "start": 36.9,
+          "end": 37.2,
+          "word": " until",
+          "probability": 0.892
+        },
+        {
+          "start": 37.2,
+          "end": 37.3,
+          "word": " it",
+          "probability": 0.998
+        },
+        {
+          "start": 37.3,
+          "end": 37.56,
+          "word": " has",
+          "probability": 0.998
+        },
+        {
+          "start": 37.56,
+          "end": 37.72,
+          "word": " a",
+          "probability": 0.997
+        },
+        {
+          "start": 37.72,
+          "end": 38.1,
+          "word": " bulging,",
+          "probability": 0.998
+        }
+      ]
+    },
+    {
+      "start": 38.16,
+      "end": 41.56,
+      "text": "golden crust that is crispy but still foldable.",
+      "avg_logprob": -0.117,
+      "no_speech_prob": 0.025,
+      "words": [
+        {
+          "start": 38.16,
+          "end": 38.44,
+          "word": " golden",
+          "probability": 0.996
+        },
+        {
+          "start": 38.44,
+          "end": 38.84,
+          "word": " crust",
+          "probability": 0.997
+        },
+        {
+          "start": 38.84,
+          "end": 39.1,
+          "word": " that",
+          "probability": 0.947
+        },
+        {
+          "start": 39.1,
+          "end": 39.28,
+          "word": " is",
+          "probability": 0.991
+        },
+        {
+          "start": 39.28,
+          "end": 39.66,
+          "word": " crispy",
+          "probability": 0.992
+        },
+        {
+          "start": 39.66,
+          "end": 39.98,
+          "word": " but",
+          "probability": 0.597
+        },
+        {
+          "start": 39.98,
+          "end": 40.86,
+          "word": " still",
+          "probability": 0.993
+        },
+        {
+          "start": 40.86,
+          "end": 41.56,
+          "word": " foldable.",
+          "probability": 0.908
+        }
+      ]
+    },
+    {
+      "start": 41.66,
+      "end": 45.04,
+      "text": "And in New Haven, Connecticut, the pizza capital of the U.S.,",
+      "avg_logprob": -0.117,
+      "no_speech_prob": 0.025,
+      "words": [
+        {
+          "start": 41.66,
+          "end": 41.8,
+          "word": " And",
+          "probability": 0.962
+        },
+        {
+          "start": 41.8,
+          "end": 41.92,
+          "word": " in",
+          "probability": 0.976
+        },
+        {
+          "start": 41.92,
+          "end": 42.1,
+          "word": " New",
+          "probability": 0.995
+        },
+        {
+          "start": 42.1,
+          "end": 42.3,
+          "word": " Haven,",
+          "probability": 0.994
+        },
+        {
+          "start": 42.3,
+          "end": 42.78,
+          "word": " Connecticut,",
+          "probability": 0.99
+        },
+        {
+          "start": 43.1,
+          "end": 43.26,
+          "word": " the",
+          "probability": 0.993
+        },
+        {
+          "start": 43.26,
+          "end": 43.64,
+          "word": " pizza",
+          "probability": 0.973
+        },
+        {
+          "start": 43.64,
+          "end": 44.02,
+          "word": " capital",
+          "probability": 0.979
+        },
+        {
+          "start": 44.02,
+          "end": 44.22,
+          "word": " of",
+          "probability": 0.998
+        },
+        {
+          "start": 44.22,
+          "end": 44.36,
+          "word": " the",
+          "probability": 0.998
+        },
+        {
+          "start": 44.36,
+          "end": 44.5,
+          "word": " U",
+          "probability": 0.551
+        },
+        {
+          "start": 44.5,
+          "end": 45.04,
+          "word": ".S.,",
+          "probability": 0.946
+        }
+      ]
+    },
+    {
+      "start": 45.04,
+      "end": 48.58,
+      "text": "pizza isn't pizza. It's a-beets.",
+      "avg_logprob": -0.117,
+      "no_speech_prob": 0.025,
+      "words": [
+        {
+          "start": 45.04,
+          "end": 45.52,
+          "word": " pizza",
+          "probability": 0.92
+        },
+        {
+          "start": 45.52,
+          "end": 46.32,
+          "word": " isn't",
+          "probability": 0.949
+        },
+        {
+          "start": 46.32,
+          "end": 46.7,
+          "word": " pizza.",
+          "probability": 0.946
+        },
+        {
+          "start": 47.52,
+          "end": 48.04,
+          "word": " It's",
+          "probability": 0.987
+        },
+        {
+          "start": 48.04,
+          "end": 48.22,
+          "word": " a",
+          "probability": 0.191
+        },
+        {
+          "start": 48.22,
+          "end": 48.58,
+          "word": "-beets.",
+          "probability": 0.648
+        }
+      ]
+    },
+    {
+      "start": 49.0,
+      "end": 55.52,
+      "text": "The crust is typically circle inspired and cooked in a charcoal oven at a much higher temp,",
+      "avg_logprob": -0.117,
+      "no_speech_prob": 0.025,
+      "words": [
+        {
+          "start": 49.0,
+          "end": 49.18,
+          "word": " The",
+          "probability": 0.992
+        },
+        {
+          "start": 49.18,
+          "end": 49.42,
+          "word": " crust",
+          "probability": 0.999
+        },
+        {
+          "start": 49.42,
+          "end": 49.7,
+          "word": " is",
+          "probability": 0.998
+        },
+        {
+          "start": 49.7,
+          "end": 50.18,
+          "word": " typically",
+          "probability": 0.997
+        },
+        {
+          "start": 50.18,
+          "end": 50.7,
+          "word": " circle",
+          "probability": 0.985
+        },
+        {
+          "start": 50.7,
+          "end": 52.12,
+          "word": " inspired",
+          "probability": 0.308
+        },
+        {
+          "start": 52.12,
+          "end": 52.6,
+          "word": " and",
+          "probability": 0.821
+        },
+        {
+          "start": 52.6,
+          "end": 52.78,
+          "word": " cooked",
+          "probability": 0.994
+        },
+        {
+          "start": 52.78,
+          "end": 52.98,
+          "word": " in",
+          "probability": 0.999
+        },
+        {
+          "start": 52.98,
+          "end": 53.32,
+          "word": " a",
+          "probability": 0.997
+        },
+        {
+          "start": 53.32,
+          "end": 53.74,
+          "word": " charcoal",
+          "probability": 0.988
+        },
+        {
+          "start": 53.74,
+          "end": 54.04,
+          "word": " oven",
+          "probability": 0.996
+        },
+        {
+          "start": 54.04,
+          "end": 54.28,
+          "word": " at",
+          "probability": 0.992
+        },
+        {
+          "start": 54.28,
+          "end": 54.56,
+          "word": " a",
+          "probability": 0.995
+        },
+        {
+          "start": 54.56,
+          "end": 54.82,
+          "word": " much",
+          "probability": 0.999
+        },
+        {
+          "start": 54.82,
+          "end": 55.18,
+          "word": " higher",
+          "probability": 0.997
+        },
+        {
+          "start": 55.18,
+          "end": 55.52,
+          "word": " temp,",
+          "probability": 0.988
+        }
+      ]
+    },
+    {
+      "start": 55.52,
+      "end": 59.06,
+      "text": "giving you a crispier and thinner crust, charred, not burnt.",
+      "avg_logprob": -0.198,
+      "no_speech_prob": 0.001,
+      "words": [
+        {
+          "start": 55.52,
+          "end": 55.88,
+          "word": " giving",
+          "probability": 0.93
+        },
+        {
+          "start": 55.88,
+          "end": 56.1,
+          "word": " you",
+          "probability": 0.988
+        },
+        {
+          "start": 56.1,
+          "end": 56.22,
+          "word": " a",
+          "probability": 0.992
+        },
+        {
+          "start": 56.22,
+          "end": 56.64,
+          "word": " crispier",
+          "probability": 0.988
+        },
+        {
+          "start": 56.64,
+          "end": 56.94,
+          "word": " and",
+          "probability": 0.978
+        },
+        {
+          "start": 56.94,
+          "end": 57.16,
+          "word": " thinner",
+          "probability": 0.994
+        },
+        {
+          "start": 57.16,
+          "end": 57.6,
+          "word": " crust,",
+          "probability": 0.999
+        },
+        {
+          "start": 57.9,
+          "end": 58.48,
+          "word": " charred,",
+          "probability": 0.998
+        },
+        {
+          "start": 58.7,
+          "end": 58.88,
+          "word": " not",
+          "probability": 0.994
+        },
+        {
+          "start": 58.88,
+          "end": 59.06,
+          "word": " burnt.",
+          "probability": 0.974
+        }
+      ]
+    }
+  ]
+}

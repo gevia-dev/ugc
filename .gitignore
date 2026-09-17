@@ -1,0 +1,20 @@
+# Mídia — pesada, recriável, nunca versionada (262MB medidos)
+*.mp4
+*.png
+*.jpg
+*.jpeg
+*.mp3
+*.wav
+
+# Saídas e artefatos extraídos dos projetos de vídeo
+*/out/
+*/shots/
+*/reads/
+*/references/
+
+# Biblioteca de assets é DADO local, não código
+assets/
+
+# Lixo do runtime
+*.stackdump
+node_modules/

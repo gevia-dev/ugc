@@ -1,0 +1,481 @@
+{
+  "backend": "local:faster-whisper",
+  "model": "medium",
+  "device": "cpu",
+  "compute_type": "int8",
+  "fell_back_from": null,
+  "cuda_dll_dirs_registered": 3,
+  "language": "en",
+  "language_probability": 1.0,
+  "audio_duration_s": 32.62,
+  "model_load_s": 10.4,
+  "transcribe_s": 28.6,
+  "realtime_factor": 1.14,
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 11.32,
+      "text": "One second pizza, one minute pizza, it actually looks okay, still a little raw.",
+      "avg_logprob": -0.27,
+      "no_speech_prob": 0.011,
+      "words": [
+        {
+          "start": 0.0,
+          "end": 0.36,
+          "word": " One",
+          "probability": 0.779
+        },
+        {
+          "start": 0.36,
+          "end": 0.68,
+          "word": " second",
+          "probability": 0.914
+        },
+        {
+          "start": 0.68,
+          "end": 1.34,
+          "word": " pizza,",
+          "probability": 0.943
+        },
+        {
+          "start": 4.32,
+          "end": 4.46,
+          "word": " one",
+          "probability": 0.921
+        },
+        {
+          "start": 4.46,
+          "end": 4.74,
+          "word": " minute",
+          "probability": 0.979
+        },
+        {
+          "start": 4.74,
+          "end": 5.24,
+          "word": " pizza,",
+          "probability": 0.984
+        },
+        {
+          "start": 8.56,
+          "end": 8.6,
+          "word": " it",
+          "probability": 0.779
+        },
+        {
+          "start": 8.6,
+          "end": 8.9,
+          "word": " actually",
+          "probability": 0.997
+        },
+        {
+          "start": 8.9,
+          "end": 9.18,
+          "word": " looks",
+          "probability": 0.997
+        },
+        {
+          "start": 9.18,
+          "end": 9.74,
+          "word": " okay,",
+          "probability": 0.777
+        },
+        {
+          "start": 10.34,
+          "end": 10.76,
+          "word": " still",
+          "probability": 0.934
+        },
+        {
+          "start": 10.76,
+          "end": 10.96,
+          "word": " a",
+          "probability": 0.998
+        },
+        {
+          "start": 10.96,
+          "end": 11.14,
+          "word": " little",
+          "probability": 0.998
+        },
+        {
+          "start": 11.14,
+          "end": 11.32,
+          "word": " raw.",
+          "probability": 0.833
+        }
+      ]
+    },
+    {
+      "start": 11.36,
+      "end": 18.24,
+      "text": "Ten minute pizza, it doesn't look terrible, the crust is burnt but the inside is perfect.",
+      "avg_logprob": -0.27,
+      "no_speech_prob": 0.011,
+      "words": [
+        {
+          "start": 11.36,
+          "end": 11.6,
+          "word": " Ten",
+          "probability": 0.454
+        },
+        {
+          "start": 11.6,
+          "end": 11.84,
+          "word": " minute",
+          "probability": 0.876
+        },
+        {
+          "start": 11.84,
+          "end": 12.32,
+          "word": " pizza,",
+          "probability": 0.993
+        },
+        {
+          "start": 14.82,
+          "end": 14.96,
+          "word": " it",
+          "probability": 0.9
+        },
+        {
+          "start": 14.96,
+          "end": 15.14,
+          "word": " doesn't",
+          "probability": 0.999
+        },
+        {
+          "start": 15.14,
+          "end": 15.36,
+          "word": " look",
+          "probability": 0.999
+        },
+        {
+          "start": 15.36,
+          "end": 15.88,
+          "word": " terrible,",
+          "probability": 0.999
+        },
+        {
+          "start": 16.54,
+          "end": 16.72,
+          "word": " the",
+          "probability": 0.977
+        },
+        {
+          "start": 16.72,
+          "end": 16.94,
+          "word": " crust",
+          "probability": 0.995
+        },
+        {
+          "start": 16.94,
+          "end": 17.14,
+          "word": " is",
+          "probability": 0.993
+        },
+        {
+          "start": 17.14,
+          "end": 17.24,
+          "word": " burnt",
+          "probability": 0.973
+        },
+        {
+          "start": 17.24,
+          "end": 17.44,
+          "word": " but",
+          "probability": 0.734
+        },
+        {
+          "start": 17.44,
+          "end": 17.62,
+          "word": " the",
+          "probability": 0.986
+        },
+        {
+          "start": 17.62,
+          "end": 17.78,
+          "word": " inside",
+          "probability": 0.996
+        },
+        {
+          "start": 17.78,
+          "end": 18.02,
+          "word": " is",
+          "probability": 0.989
+        },
+        {
+          "start": 18.02,
+          "end": 18.24,
+          "word": " perfect.",
+          "probability": 0.999
+        }
+      ]
+    },
+    {
+      "start": 18.38,
+      "end": 25.52,
+      "text": "One hour pizza, oh no, the only thing that can make this taste better is Osmo because",
+      "avg_logprob": -0.27,
+      "no_speech_prob": 0.011,
+      "words": [
+        {
+          "start": 18.38,
+          "end": 18.7,
+          "word": " One",
+          "probability": 0.991
+        },
+        {
+          "start": 18.7,
+          "end": 19.0,
+          "word": " hour",
+          "probability": 0.981
+        },
+        {
+          "start": 19.0,
+          "end": 19.46,
+          "word": " pizza,",
+          "probability": 0.995
+        },
+        {
+          "start": 22.52,
+          "end": 22.76,
+          "word": " oh",
+          "probability": 0.915
+        },
+        {
+          "start": 22.76,
+          "end": 23.04,
+          "word": " no,",
+          "probability": 0.98
+        },
+        {
+          "start": 23.16,
+          "end": 23.28,
+          "word": " the",
+          "probability": 0.991
+        },
+        {
+          "start": 23.28,
+          "end": 23.44,
+          "word": " only",
+          "probability": 0.999
+        },
+        {
+          "start": 23.44,
+          "end": 23.54,
+          "word": " thing",
+          "probability": 0.988
+        },
+        {
+          "start": 23.54,
+          "end": 23.6,
+          "word": " that",
+          "probability": 0.992
+        },
+        {
+          "start": 23.6,
+          "end": 23.76,
+          "word": " can",
+          "probability": 0.982
+        },
+        {
+          "start": 23.76,
+          "end": 23.88,
+          "word": " make",
+          "probability": 0.996
+        },
+        {
+          "start": 23.88,
+          "end": 24.1,
+          "word": " this",
+          "probability": 0.998
+        },
+        {
+          "start": 24.1,
+          "end": 24.28,
+          "word": " taste",
+          "probability": 0.957
+        },
+        {
+          "start": 24.28,
+          "end": 24.58,
+          "word": " better",
+          "probability": 0.998
+        },
+        {
+          "start": 24.58,
+          "end": 24.88,
+          "word": " is",
+          "probability": 0.986
+        },
+        {
+          "start": 24.88,
+          "end": 25.14,
+          "word": " Osmo",
+          "probability": 0.934
+        },
+        {
+          "start": 25.14,
+          "end": 25.52,
+          "word": " because",
+          "probability": 0.767
+        }
+      ]
+    },
+    {
+      "start": 25.52,
+      "end": 28.48,
+      "text": "everything tastes better with Osmo. Go try some at Walmart now.",
+      "avg_logprob": -0.27,
+      "no_speech_prob": 0.011,
+      "words": [
+        {
+          "start": 25.52,
+          "end": 25.96,
+          "word": " everything",
+          "probability": 0.994
+        },
+        {
+          "start": 25.96,
+          "end": 26.24,
+          "word": " tastes",
+          "probability": 0.985
+        },
+        {
+          "start": 26.24,
+          "end": 26.48,
+          "word": " better",
+          "probability": 0.999
+        },
+        {
+          "start": 26.48,
+          "end": 26.68,
+          "word": " with",
+          "probability": 0.982
+        },
+        {
+          "start": 26.68,
+          "end": 26.92,
+          "word": " Osmo.",
+          "probability": 0.992
+        },
+        {
+          "start": 27.0,
+          "end": 27.2,
+          "word": " Go",
+          "probability": 0.924
+        },
+        {
+          "start": 27.2,
+          "end": 27.42,
+          "word": " try",
+          "probability": 0.991
+        },
+        {
+          "start": 27.42,
+          "end": 27.58,
+          "word": " some",
+          "probability": 0.988
+        },
+        {
+          "start": 27.58,
+          "end": 27.76,
+          "word": " at",
+          "probability": 0.987
+        },
+        {
+          "start": 27.76,
+          "end": 28.0,
+          "word": " Walmart",
+          "probability": 0.779
+        },
+        {
+          "start": 28.0,
+          "end": 28.48,
+          "word": " now.",
+          "probability": 0.971
+        }
+      ]
+    },
+    {
+      "start": 29.76,
+      "end": 32.46,
+      "text": "Hold on, yeah it's burnt, I might kind of like it though.",
+      "avg_logprob": -0.27,
+      "no_speech_prob": 0.011,
+      "words": [
+        {
+          "start": 29.76,
+          "end": 29.92,
+          "word": " Hold",
+          "probability": 0.96
+        },
+        {
+          "start": 29.92,
+          "end": 30.42,
+          "word": " on,",
+          "probability": 0.998
+        },
+        {
+          "start": 30.82,
+          "end": 30.82,
+          "word": " yeah",
+          "probability": 0.946
+        },
+        {
+          "start": 30.82,
+          "end": 31.02,
+          "word": " it's",
+          "probability": 0.843
+        },
+        {
+          "start": 31.02,
+          "end": 31.24,
+          "word": " burnt,",
+          "probability": 0.992
+        },
+        {
+          "start": 31.6,
+          "end": 31.66,
+          "word": " I",
+          "probability": 0.986
+        },
+        {
+          "start": 31.66,
+          "end": 31.82,
+          "word": " might",
+          "probability": 0.937
+        },
+        {
+          "start": 31.82,
+          "end": 31.96,
+          "word": " kind",
+          "probability": 0.651
+        },
+        {
+          "start": 31.96,
+          "end": 32.08,
+          "word": " of",
+          "probability": 0.994
+        },
+        {
+          "start": 32.08,
+          "end": 32.2,
+          "word": " like",
+          "probability": 0.997
+        },
+        {
+          "start": 32.2,
+          "end": 32.36,
+          "word": " it",
+          "probability": 0.994
+        },
+        {
+          "start": 32.36,
+          "end": 32.46,
+          "word": " though.",
+          "probability": 0.713
+        }
+      ]
+    }
+  ]
+}
