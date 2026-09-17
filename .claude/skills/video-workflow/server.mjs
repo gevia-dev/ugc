@@ -29,6 +29,14 @@
  *   GET  /api/approved?dir=<projeto>           -> estado aprovado do projeto
  *   POST /api/approved           (JSON)        -> registra UMA decisão de tela
  *
+ * A revisão por beat (aprovar/rejeitar + feedback) usa o mesmo ponto, em
+ * `review-api.mjs`:
+ *
+ *   GET  /api/review?dir=<projeto>             -> estado de revisão do projeto
+ *   POST /api/review             (JSON)        -> aprova/rejeita UM beat (+ feedback)
+ *   POST /api/review/clear       (JSON)        -> volta um beat a "pendente"
+ *   POST /api/review/submit      (JSON)        -> carimba envio + escreve o digest .md
+ *
  * Quem importa este módulo como biblioteca deve aguardar `extensionsReady`
  * antes de chamar `handle()`, senão as rotas acima ainda não existem.
  */
@@ -338,20 +346,23 @@ export function createVideoWorkflowServer() {
 }
 
 // ---------------------------------------------------------------------------
-// extensões (parte 3 — página de assets)
+// extensões (parte 3 — assets · revisão de beat)
 //
-// Registra /api/assets, /api/asset, /api/asset/file, /api/recurring e
-// /api/approved via `route()` — o dispatcher `handle()` não muda.
+// Registra /api/assets & cia. (assets-api.mjs) e /api/review & cia.
+// (review-api.mjs) via `route()` — o dispatcher `handle()` não muda.
 //
-// O import é dinâmico e NÃO é aguardado aqui de propósito: `assets-api.mjs`
-// importa este módulo de volta (usando o ponto de extensão documentado no
-// topo), e um `await import()` no meio desse ciclo travaria a avaliação dos
-// dois. Sem o `await`, este módulo termina, o ciclo resolve, e as rotas ficam
+// Os imports são dinâmicos e NÃO são aguardados aqui de propósito: os dois
+// módulos importam este de volta (usando o ponto de extensão documentado no
+// topo), e um `await import()` no meio desse ciclo travaria a avaliação. Sem
+// o `await`, este módulo termina, o ciclo resolve, e as rotas ficam
 // registradas no microtask seguinte. Quem sobe o servidor espera por
 // `extensionsReady`; quem importa como biblioteca também deve esperar.
 // ---------------------------------------------------------------------------
 
-export const extensionsReady = import('./assets-api.mjs');
+export const extensionsReady = Promise.all([
+  import('./assets-api.mjs'),
+  import('./review-api.mjs'),
+]);
 
 // ---------------------------------------------------------------------------
 // CLI: node server.mjs [--port N] [--root DIR]

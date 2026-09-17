@@ -91,7 +91,12 @@
 
 * { box-sizing: border-box; }
 
-html, body { height: 100%; }
+/* App-shell de tela única: body é a coluna flex inteira, sem scroll de
+   página — topbar/rail/footer têm altura fixa, o stage central ocupa o
+   resto (flex:1) e só painéis internos (ver .beat-card) ganham overflow-y
+   próprio como último recurso, para um beat com texto excepcionalmente
+   longo não quebrar o layout. */
+html, body { height: 100%; overflow: hidden; }
 
 body {
   margin: 0;
@@ -101,19 +106,19 @@ body {
     linear-gradient(180deg, hsl(var(--home-surface-top)) 0%, hsl(var(--home-surface-bottom)) 100%)
     fixed;
   -webkit-font-smoothing: antialiased;
-  font-size: 15px;
-  line-height: 1.55;
+  font-size: 14px;
+  line-height: 1.48;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ---------------------------------------------------------------- topbar -- */
 .topbar {
-  position: sticky;
-  top: 0;
-  z-index: 40;
+  flex: none;
   display: flex;
   align-items: center;
-  gap: 20px;
-  padding: 14px 28px;
+  gap: 16px;
+  padding: 8px 20px;
   background: hsl(var(--background) / 0.82);
   backdrop-filter: blur(14px);
   border-bottom: 1px solid hsl(var(--border));
@@ -198,31 +203,44 @@ select.project-select:focus-visible { outline: 2px solid hsl(var(--ring) / 0.5);
 .savestate[data-state="error"] .dot { background: hsl(var(--destructive)); }
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
+.review-counts {
+  font-size: 11.5px; font-family: var(--mono);
+  color: hsl(var(--muted-foreground));
+  white-space: nowrap;
+}
+.btn-send {
+  background: hsl(var(--primary) / 0.1); color: hsl(var(--primary-dark));
+  border-color: hsl(var(--primary) / 0.32);
+}
+.btn-send:hover:not(:disabled) { background: hsl(var(--primary) / 0.18); color: hsl(var(--primary-dark)); }
+.btn-send svg { width: 13px; height: 13px; }
+
 /* ------------------------------------------------------------------ rail -- */
 .railwrap {
-  padding: 18px 28px 4px;
+  flex: none;
+  padding: 8px 20px 2px;
   max-width: 1560px; margin: 0 auto; width: 100%;
 }
-.rail { display: flex; gap: 14px; align-items: flex-end; }
-.rail-chunk { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.rail { display: flex; gap: 12px; align-items: flex-end; }
+.rail-chunk { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .rail-chunk-label {
-  font-size: 10.5px; font-weight: 650; letter-spacing: 0.07em; text-transform: uppercase;
+  font-size: 10px; font-weight: 650; letter-spacing: 0.07em; text-transform: uppercase;
   color: hsl(var(--muted-foreground));
   font-family: var(--mono);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .rail-segs { display: flex; gap: 3px; }
 .rail-seg {
-  height: 30px; min-width: 22px;
+  height: 22px; min-width: 18px;
   border: 1px solid hsl(var(--border));
   border-radius: var(--radius-xs);
   background: hsl(var(--background));
   box-shadow: var(--shadow-inset-subtle);
   cursor: pointer;
   display: grid; place-items: center;
-  font-size: 11px; font-weight: 600; font-family: var(--mono);
+  font-size: 10px; font-weight: 600; font-family: var(--mono);
   color: hsl(var(--muted-foreground));
-  padding: 0 6px;
+  padding: 0 5px;
   transition: var(--transition-fast);
 }
 .rail-seg:hover { border-color: hsl(var(--primary) / 0.45); color: hsl(var(--primary-dark)); }
@@ -235,14 +253,23 @@ select.project-select:focus-visible { outline: 2px solid hsl(var(--ring) / 0.5);
 
 /* ----------------------------------------------------------------- stage -- */
 .stage {
-  max-width: 1560px; margin: 0 auto;
-  padding: 18px 28px 40px;
+  max-width: 1560px; margin: 0 auto; width: 100%;
+  padding: 10px 20px;
   display: grid;
-  grid-template-columns: minmax(340px, 0.86fr) minmax(460px, 1.14fr);
-  gap: 22px;
-  align-items: start;
+  grid-template-columns: minmax(280px, 0.82fr) minmax(380px, 1.18fr);
+  gap: 16px;
+  align-items: stretch;
+  flex: 1 1 auto;
+  min-height: 0;
 }
-@media (max-width: 1120px) { .stage { grid-template-columns: 1fr; } }
+/* Abaixo de 1120px as duas colunas não cabem lado a lado E dentro da altura
+   ao mesmo tempo — vira coluna única com scroll de página. É a única exceção
+   deliberada à regra de "tela única": largura e altura não cabem juntas num
+   viewport estreito, então priorizamos não cortar conteúdo. */
+@media (max-width: 1120px) {
+  html, body { overflow: auto; }
+  .stage { grid-template-columns: 1fr; flex: none; }
+}
 
 .card {
   background: hsl(var(--card));
@@ -253,9 +280,9 @@ select.project-select:focus-visible { outline: 2px solid hsl(var(--ring) / 0.5);
 }
 
 /* frame ------------------------------------------------------------------- */
-.pane-frame { position: sticky; top: 84px; }
-@media (max-width: 1120px) { .pane-frame { position: static; } }
-.frame-card { padding: 16px; }
+.pane-frame { min-height: 0; display: flex; }
+.frame-card { padding: 10px; display: flex; flex-direction: row; gap: 10px; width: 100%; min-height: 0; }
+.frame-main { display: flex; flex-direction: column; flex: 1 1 auto; min-width: 0; min-height: 0; }
 .frame-figure {
   position: relative;
   border-radius: var(--radius-lg);
@@ -264,12 +291,13 @@ select.project-select:focus-visible { outline: 2px solid hsl(var(--ring) / 0.5);
     repeating-conic-gradient(hsl(0 0% 97%) 0% 25%, hsl(0 0% 93%) 0% 50%) 50% / 18px 18px;
   border: 1px solid hsl(var(--border));
   display: grid; place-items: center;
-  min-height: 260px;
+  flex: 1 1 auto;
+  min-height: 0;
 }
-.frame-figure img { display: block; width: 100%; height: auto; }
+.frame-figure img { display: block; width: 100%; height: 100%; object-fit: contain; }
 .frame-empty {
-  padding: 48px 20px; text-align: center;
-  color: hsl(var(--muted-foreground)); font-size: 13.5px;
+  padding: 20px; text-align: center;
+  color: hsl(var(--muted-foreground)); font-size: 13px;
 }
 .frame-badge {
   position: absolute; left: 10px; top: 10px;
@@ -282,14 +310,25 @@ select.project-select:focus-visible { outline: 2px solid hsl(var(--ring) / 0.5);
   letter-spacing: 0.01em;
 }
 .frame-meta {
+  flex: none;
   display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
-  padding: 12px 4px 2px;
+  padding: 8px 2px 0;
 }
-.frame-meta .fm-name { font-family: var(--mono); font-size: 12.5px; font-weight: 600; }
-.frame-meta .fm-sub { font-size: 12px; color: hsl(var(--muted-foreground)); }
-.strip { display: flex; gap: 8px; padding: 10px 4px 2px; flex-wrap: wrap; }
+.frame-meta .fm-name { font-family: var(--mono); font-size: 12px; font-weight: 600; }
+.frame-meta .fm-sub { font-size: 11.5px; color: hsl(var(--muted-foreground)); }
+#stripWrap {
+  flex: none;
+  width: 118px;
+  display: flex; flex-direction: column; min-height: 0;
+}
+#stripWrap.hide { display: none; }
+.strip {
+  flex: 1 1 auto;
+  display: flex; flex-direction: column; gap: 8px; padding: 6px 0 0;
+  overflow-y: auto; overflow-x: hidden; min-height: 0;
+}
 .thumb {
-  width: 64px; height: 44px;
+  width: 100%; height: 72px; flex: none;
   border-radius: var(--radius-sm);
   overflow: hidden;
   border: 1.5px solid hsl(var(--border));
@@ -301,37 +340,38 @@ select.project-select:focus-visible { outline: 2px solid hsl(var(--ring) / 0.5);
 .thumb:hover { border-color: hsl(var(--primary) / 0.5); }
 .thumb.is-active { border-color: hsl(var(--primary)); box-shadow: 0 0 0 3px hsl(var(--primary) / 0.16); }
 .strip-label {
-  font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
-  color: hsl(var(--muted-foreground)); padding: 14px 4px 0;
+  flex: none;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+  color: hsl(var(--muted-foreground)); padding: 0 0 2px;
 }
 
 /* beat -------------------------------------------------------------------- */
-.beat-card { padding: 26px 28px 28px; }
-.beat-head { border-bottom: 1px solid hsl(var(--border)); padding-bottom: 20px; margin-bottom: 22px; }
-.beat-kicker { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.pane-beat { min-height: 0; display: flex; }
+.beat-card {
+  padding: 12px 16px 10px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  /* último recurso: um beat com texto excepcionalmente longo em todos os
+     campos ao mesmo tempo rola AQUI DENTRO, nunca a página inteira. */
+  overflow-y: auto;
+}
+.beat-head { flex: none; border-bottom: 1px solid hsl(var(--border)); padding-bottom: 8px; margin-bottom: 8px; }
+.beat-kicker { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
 .beat-counter {
-  font-size: 22px; font-weight: 720; letter-spacing: -0.025em;
+  font-size: 17px; font-weight: 720; letter-spacing: -0.025em;
   color: hsl(var(--foreground));
 }
 .beat-counter em { font-style: normal; color: hsl(var(--primary)); }
 .beat-counter .of { font-size: 14px; font-weight: 500; color: hsl(var(--muted-foreground)); }
-.pill {
-  font-size: 11.5px; font-weight: 600; font-family: var(--mono);
-  padding: 4px 10px;
-  border-radius: var(--radius-xs);
-  border: 1px solid hsl(var(--border));
-  background: hsl(var(--secondary));
-  color: hsl(var(--secondary-foreground));
-  white-space: nowrap;
-}
-.pill.pill-time { background: hsl(var(--primary) / 0.09); border-color: hsl(var(--primary) / 0.22); color: hsl(var(--primary-dark)); }
 
 .name-input {
   font: inherit;
-  font-size: 19px; font-weight: 640; letter-spacing: -0.015em;
+  font-size: 16px; font-weight: 640; letter-spacing: -0.015em;
   width: 100%;
-  padding: 8px 12px;
-  margin-left: -12px;
+  padding: 5px 10px;
+  margin-left: -10px;
   border: 1px solid transparent;
   border-radius: var(--radius-sm); corner-shape: var(--corner-shape);
   background: transparent;
@@ -341,35 +381,36 @@ select.project-select:focus-visible { outline: 2px solid hsl(var(--ring) / 0.5);
 .name-input:hover { background: hsl(var(--secondary) / 0.7); }
 .name-input:focus { outline: none; background: hsl(var(--background)); border-color: hsl(var(--ring) / 0.5); box-shadow: 0 0 0 3px hsl(var(--ring) / 0.14); }
 
-.field { margin-bottom: 16px; }
-.field-head { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.field { margin-bottom: 0; min-width: 0; }
+.field-head { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
 .field-icon {
-  width: 22px; height: 22px; flex: none;
+  width: 18px; height: 18px; flex: none;
   display: grid; place-items: center;
   border-radius: var(--radius-xs); corner-shape: var(--corner-shape);
   background: hsl(var(--primary) / 0.1);
   color: hsl(var(--primary-dark));
 }
-.field-icon svg { width: 13px; height: 13px; }
+.field-icon svg { width: 11px; height: 11px; }
 .field-label {
-  font-size: 11.5px; font-weight: 680; letter-spacing: 0.08em; text-transform: uppercase;
+  font-size: 10.5px; font-weight: 680; letter-spacing: 0.07em; text-transform: uppercase;
   color: hsl(var(--secondary-foreground));
 }
-.field-hint { font-size: 11.5px; color: hsl(var(--muted-foreground)); margin-left: auto; }
+.field-hint { font-size: 10.5px; color: hsl(var(--muted-foreground)); margin-left: auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .field-empty-tag {
-  font-size: 10.5px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
   color: hsl(var(--muted-foreground));
-  padding: 2px 7px; border-radius: var(--radius-xs); corner-shape: var(--corner-shape);
+  padding: 1px 6px; border-radius: var(--radius-xs); corner-shape: var(--corner-shape);
   background: hsl(var(--muted));
 }
 
 textarea.autotext {
   font: inherit;
-  font-size: 14.5px; line-height: 1.62;
+  font-size: 13px; line-height: 1.48;
   width: 100%;
-  min-height: 46px;
-  padding: 11px 14px;
-  resize: none; overflow: hidden;
+  min-height: 36px;
+  max-height: 96px;
+  padding: 7px 10px;
+  resize: none; overflow-y: auto;
   border: 1px solid hsl(var(--input));
   border-radius: var(--radius-md); corner-shape: var(--corner-shape);
   background: hsl(var(--background));
@@ -387,22 +428,77 @@ textarea.autotext:focus {
 textarea.autotext[data-dirty="1"] { border-color: hsl(var(--primary) / 0.55); background: hsl(var(--primary) / 0.03); }
 textarea.autotext.mono { font-family: var(--mono); font-size: 13px; }
 
-.desc-block { margin-bottom: 22px; }
-.desc-block textarea { background: hsl(var(--secondary) / 0.55); }
+.desc-block { flex: none; margin-bottom: 8px; }
+.desc-block textarea { background: hsl(var(--secondary) / 0.55); max-height: 108px; }
 
-.grid-fields { display: grid; grid-template-columns: 1fr; gap: 2px; }
+.grid-fields { flex: none; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; }
+@media (max-width: 1120px) { .grid-fields { grid-template-columns: 1fr; } }
+
+/* review bar — aprovar / rejeitar + feedback deste beat -------------------- */
+footer { flex: none; }
+.reviewbar {
+  display: flex; align-items: center; gap: 8px;
+  max-width: 1560px; margin: 0 auto; width: 100%;
+  padding: 7px 20px;
+  border-top: 1px solid hsl(var(--border));
+}
+.review-status-pill {
+  flex: none;
+  font-size: 11px; font-weight: 650;
+  padding: 6px 11px;
+  border-radius: 999px; corner-shape: round;
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--secondary));
+  color: hsl(var(--muted-foreground));
+  display: inline-flex; align-items: center; gap: 6px;
+  white-space: nowrap;
+}
+.review-status-pill[data-decision="approved"] { background: hsl(var(--success) / 0.15); border-color: hsl(var(--success) / 0.4); color: hsl(142 45% 26%); }
+.review-status-pill[data-decision="rejected"] { background: hsl(var(--destructive) / 0.12); border-color: hsl(var(--destructive) / 0.4); color: hsl(0 60% 40%); }
+.review-undo {
+  font: inherit; font-size: 10.5px; font-weight: 650;
+  background: none; border: none; padding: 0; margin-left: 1px;
+  color: inherit; text-decoration: underline; cursor: pointer; opacity: 0.75;
+}
+.review-undo:hover { opacity: 1; }
+.feedback-input {
+  flex: 1 1 auto; min-width: 0;
+  font: inherit; font-size: 12.5px;
+  padding: 7px 11px;
+  border: 1px solid hsl(var(--input));
+  border-radius: var(--radius-md); corner-shape: var(--corner-shape);
+  background: hsl(var(--background));
+  box-shadow: var(--shadow-inset-subtle);
+  resize: none; max-height: 52px; overflow-y: auto;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.feedback-input::placeholder { color: hsl(var(--muted-foreground) / 0.75); }
+.feedback-input:focus {
+  outline: none; border-color: hsl(var(--ring) / 0.65);
+  box-shadow: 0 0 0 3px hsl(var(--ring) / 0.14), var(--shadow-inset-subtle);
+}
+.feedback-input[data-dirty="1"] { border-color: hsl(var(--primary) / 0.5); }
+.feedback-save {
+  flex: none; width: 64px;
+  font-size: 10px; color: hsl(var(--muted-foreground));
+  text-align: center;
+}
+.btn-reject { border-color: hsl(var(--destructive) / 0.38); color: hsl(0 55% 42%); }
+.btn-reject:hover:not(:disabled) { background: hsl(var(--destructive) / 0.08); border-color: hsl(var(--destructive) / 0.55); color: hsl(0 60% 36%); }
+.btn-reject.is-active { background: hsl(var(--destructive) / 0.14); border-color: hsl(var(--destructive) / 0.5); color: hsl(0 60% 36%); }
+.btn-approve { border-color: hsl(var(--success) / 0.4); color: hsl(142 45% 28%); }
+.btn-approve:hover:not(:disabled) { background: hsl(var(--success) / 0.1); border-color: hsl(var(--success) / 0.55); color: hsl(142 50% 22%); }
+.btn-approve.is-active { background: hsl(var(--success) / 0.16); border-color: hsl(var(--success) / 0.5); color: hsl(142 50% 22%); }
 
 /* pager ------------------------------------------------------------------- */
 .pager {
-  position: sticky; bottom: 0; z-index: 30;
   display: flex; align-items: center; justify-content: center; gap: 12px;
-  padding: 12px 28px 16px;
-  background: linear-gradient(180deg, hsl(var(--home-surface-bottom) / 0) 0%, hsl(var(--home-surface-bottom)) 45%);
+  padding: 4px 20px;
 }
 .btn {
-  font: inherit; font-size: 13.5px; font-weight: 600;
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 10px 18px;
+  font: inherit; font-size: 13px; font-weight: 600;
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 15px;
   border-radius: var(--radius-lg); corner-shape: var(--corner-shape);
   border: 1px solid hsl(var(--border));
   background: hsl(var(--background));
@@ -422,7 +518,7 @@ textarea.autotext.mono { font-family: var(--mono); font-size: 13px; }
 .btn-primary:hover:not(:disabled) { background: hsl(var(--primary-hover)); color: hsl(var(--primary-foreground)); }
 .pager-dots { display: flex; gap: 6px; padding: 0 8px; }
 .dot-nav {
-  width: 9px; height: 9px; padding: 0;
+  width: 8px; height: 8px; padding: 0;
   border-radius: 50%; corner-shape: round;
   border: 1px solid hsl(var(--border));
   background: hsl(var(--background));
@@ -431,25 +527,59 @@ textarea.autotext.mono { font-family: var(--mono); font-size: 13px; }
 }
 .dot-nav:hover { border-color: hsl(var(--primary) / 0.6); }
 .dot-nav.is-active { background: hsl(var(--primary)); border-color: hsl(var(--primary-dark)); transform: scale(1.35); }
+.dot-nav[data-decision="approved"] { background: hsl(var(--success)); border-color: hsl(var(--success)); }
+.dot-nav[data-decision="rejected"] { background: hsl(var(--destructive)); border-color: hsl(var(--destructive)); }
 
 .kbd-hint {
-  text-align: center; font-size: 11.5px; color: hsl(var(--muted-foreground));
-  padding-bottom: 20px;
+  text-align: center; font-size: 10px; color: hsl(var(--muted-foreground));
+  padding: 1px 20px 4px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 kbd {
-  font-family: var(--mono); font-size: 10.5px;
-  padding: 2px 6px; border-radius: var(--radius-xs); corner-shape: var(--corner-shape);
+  font-family: var(--mono); font-size: 9.5px;
+  padding: 1px 5px; border-radius: var(--radius-xs); corner-shape: var(--corner-shape);
   border: 1px solid hsl(var(--border)); border-bottom-width: 2px;
   background: hsl(var(--background));
   color: hsl(var(--secondary-foreground));
 }
 
+/* toast — confirmação do "Enviar respostas" -------------------------------- */
+.toast {
+  position: fixed; top: 12px; left: 50%;
+  transform: translateX(-50%) translateY(-10px);
+  z-index: 100;
+  max-width: 460px;
+  background: hsl(0 0% 10%); color: hsl(0 0% 98%);
+  padding: 12px 14px; border-radius: var(--radius-lg); corner-shape: var(--corner-shape);
+  box-shadow: var(--shadow-elevation-2);
+  font-size: 12.5px; line-height: 1.5;
+  display: flex; align-items: flex-start; gap: 10px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.toast.is-visible { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.toast.is-error { background: hsl(0 62% 34%); }
+.toast-body { flex: 1 1 auto; min-width: 0; }
+.toast-title { font-weight: 650; margin-bottom: 2px; }
+.toast-actions { display: flex; gap: 6px; margin-top: 8px; }
+.toast-copy {
+  font: inherit; font-size: 11.5px; font-weight: 600;
+  background: hsl(0 0% 100% / 0.14); color: inherit; border: 1px solid hsl(0 0% 100% / 0.25);
+  padding: 5px 10px; border-radius: var(--radius-sm); corner-shape: var(--corner-shape); cursor: pointer;
+}
+.toast-copy:hover { background: hsl(0 0% 100% / 0.22); }
+.toast-close {
+  flex: none; font: inherit; background: none; border: none;
+  color: hsl(0 0% 100% / 0.6); cursor: pointer; font-size: 16px; line-height: 1; padding: 2px;
+}
+.toast-close:hover { color: hsl(0 0% 100%); }
+
 .boot {
-  max-width: 560px; margin: 90px auto; padding: 32px;
+  max-width: 560px; margin: 70px auto; padding: 28px;
   text-align: center; color: hsl(var(--muted-foreground));
 }
-.boot h1 { font-size: 17px; color: hsl(var(--foreground)); margin: 0 0 8px; }
-.boot code { font-family: var(--mono); font-size: 12.5px; }
+.boot h1 { font-size: 16px; color: hsl(var(--foreground)); margin: 0 0 8px; }
+.boot code { font-family: var(--mono); font-size: 12px; }
 .hide { display: none !important; }
 </style>
 </head>
@@ -476,6 +606,12 @@ kbd {
 
   <span class="topbar-spacer"></span>
 
+  <span class="review-counts" id="reviewCounts" hidden></span>
+  <button class="btn btn-send" id="submitReviewBtn" title="Salva o que estiver pendente e grava o envio (review/&lt;projeto&gt;.md) para o Claude ler na próxima conversa">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg>
+    Enviar respostas
+  </button>
+
   <select class="project-select" id="projectSelect" aria-label="Projeto"></select>
   <span class="savestate" id="saveState" data-state="idle"><span class="dot"></span><span id="saveText">pronto</span></span>
 </header>
@@ -485,13 +621,15 @@ kbd {
 <main class="stage" id="stage" hidden>
   <section class="pane pane-frame">
     <div class="card frame-card">
-      <div class="frame-figure" id="frameFigure"></div>
-      <div class="frame-meta">
-        <span class="fm-name" id="frameName">—</span>
-        <span class="fm-sub" id="frameSub"></span>
+      <div class="frame-main">
+        <div class="frame-figure" id="frameFigure"></div>
+        <div class="frame-meta">
+          <span class="fm-name" id="frameName">—</span>
+          <span class="fm-sub" id="frameSub"></span>
+        </div>
       </div>
       <div id="stripWrap" class="hide">
-        <div class="strip-label">Frames no intervalo deste beat</div>
+        <div class="strip-label">Frames no intervalo</div>
         <div class="strip" id="strip"></div>
       </div>
     </div>
@@ -502,9 +640,6 @@ kbd {
       <div class="beat-head">
         <div class="beat-kicker">
           <span class="beat-counter" id="beatCounter"></span>
-          <span class="pill pill-time" id="pillTime"></span>
-          <span class="pill" id="pillChunk"></span>
-          <span class="pill" id="pillId"></span>
         </div>
         <input class="name-input" id="beatName" data-key="name" placeholder="nome do beat" autocomplete="off" spellcheck="false">
       </div>
@@ -526,6 +661,22 @@ kbd {
 </main>
 
 <footer>
+  <div class="reviewbar">
+    <span class="review-status-pill" id="reviewStatusPill" data-decision="">
+      <span id="reviewStatusText">pendente</span>
+      <button class="review-undo hide" id="reviewUndoBtn" type="button">desfazer</button>
+    </span>
+    <button class="btn btn-reject" id="rejectBtn" title="Rejeitar este beat">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      Rejeitar
+    </button>
+    <textarea class="feedback-input" id="feedbackInput" rows="1" placeholder="feedback para este beat (opcional) — o que precisa mudar"></textarea>
+    <span class="feedback-save" id="feedbackSave"></span>
+    <button class="btn btn-approve" id="approveBtn" title="Aprovar este beat">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+      Aprovar
+    </button>
+  </div>
   <div class="pager">
     <button class="btn" id="prevBtn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
@@ -538,9 +689,20 @@ kbd {
     </button>
   </div>
   <div class="kbd-hint">
-    <kbd>←</kbd> <kbd>→</kbd> navega entre beats · <kbd>Ctrl</kbd>+<kbd>S</kbd> salva · o campo salva sozinho ao perder o foco
+    <kbd>←</kbd> <kbd>→</kbd> navega · <kbd>Ctrl</kbd>+<kbd>S</kbd> salva · <kbd>A</kbd> aprova · <kbd>R</kbd> rejeita · campo salva sozinho ao perder o foco
   </div>
 </footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite">
+  <div class="toast-body">
+    <div class="toast-title" id="toastTitle"></div>
+    <div id="toastMsg"></div>
+    <div class="toast-actions">
+      <button class="toast-copy" id="toastCopyBtn">copiar resumo</button>
+    </div>
+  </div>
+  <button class="toast-close" id="toastCloseBtn" aria-label="Fechar">×</button>
+</div>
 
 <div class="boot" id="boot"><h1>Carregando projeto…</h1><p>Falando com <code>/api/projects</code>.</p></div>
 
@@ -567,7 +729,10 @@ const state = {
   beatId: null,
   pending: new Map(), // key -> valor ainda não salvo
   saving: 0,
+  review: null,        // { version, project, updatedAt, submittedAt, beats: { <id>: {...} } }
+  reviewCounts: null,  // { approved, rejected, withFeedback, total }
 };
+let lastSummaryText = '';
 
 const $ = (id) => document.getElementById(id);
 
@@ -650,7 +815,10 @@ async function onRoute() {
 
   if (dir !== state.dir || !state.project) {
     try {
-      const data = await api('/api/project?dir=' + encodeURIComponent(dir));
+      const [data] = await Promise.all([
+        api('/api/project?dir=' + encodeURIComponent(dir)),
+        loadReview(dir),
+      ]);
       state.dir = dir;
       state.project = data.project;
       state.pending.clear();
@@ -686,6 +854,19 @@ async function reloadProject() {
   state.project = data.project;
 }
 
+/* ------------------------------------------------------------------ review */
+async function loadReview(dir) {
+  try {
+    const data = await api('/api/review?dir=' + encodeURIComponent(dir));
+    state.review = data.review;
+    state.reviewCounts = data.counts;
+  } catch {
+    // projeto sem review/<dir>.json ainda, ou erro de rede — trata como "nada revisado".
+    state.review = null;
+    state.reviewCounts = null;
+  }
+}
+
 /* ----------------------------------------------------------------- render */
 function currentBeat() {
   return state.project.beats.find((b) => b.id === state.beatId) || null;
@@ -696,7 +877,7 @@ function render() {
   const beat = currentBeat();
   if (!beat) return;
 
-  $('brandSub').textContent = p.dir + ' · ' + p.beats.length + ' beats · ' + p.frameCount + ' frames';
+  $('brandSub').textContent = p.dir;
   document.title = 'BEAT ' + beat.position + '/' + beat.total + ' · ' + p.dir;
   $('tabAssets').href = 'assets.html#/' + encodeURIComponent(p.dir);
 
@@ -704,6 +885,7 @@ function render() {
   renderFrame(beat);
   renderBeat(beat);
   renderPager(beat);
+  renderReviewBar(beat);
 }
 
 function renderRail() {
@@ -767,9 +949,6 @@ function renderFrame(beat) {
 
 function renderBeat(beat) {
   $('beatCounter').innerHTML = 'BEAT <em>' + beat.position + '</em> <span class="of">de ' + beat.total + '</span>';
-  $('pillTime').textContent = beat.startLabel + ' → ' + beat.endLabel + '  ·  ' + (beat.durationLabel || fmtSec(beat.duration));
-  $('pillChunk').textContent = 'chunk ' + beat.chunk + ' · ' + beat.chunkFile;
-  $('pillId').textContent = 'id ' + beat.id;
 
   bindValue($('beatName'), beat.name ?? '');
   bindValue($('fDescription'), beat.description ?? '');
@@ -806,14 +985,202 @@ function renderPager(beat) {
   next.innerHTML = (isLast ? 'Assets' : 'Próximo') + ' ' + ARROW_SVG;
   next.title = isLast ? 'Última página de beat — segue para a página de assets' : '';
 
-  $('dots').innerHTML = beats.map((b) =>
-    '<button class="dot-nav' + (b.id === state.beatId ? ' is-active' : '') + '" data-id="' + escapeHtml(b.id) + '" ' +
-    'title="' + escapeHtml('BEAT ' + b.position + ' — ' + b.name) + '"></button>'
-  ).join('');
+  $('dots').innerHTML = beats.map((b) => {
+    const rec = state.review ? state.review.beats[b.id] : null;
+    const dec = rec ? rec.decision : null;
+    const decLabel = dec === 'approved' ? ' — aprovado' : dec === 'rejected' ? ' — rejeitado' : '';
+    return '<button class="dot-nav' + (b.id === state.beatId ? ' is-active' : '') + '" data-id="' + escapeHtml(b.id) + '" ' +
+      (dec ? 'data-decision="' + dec + '" ' : '') +
+      'title="' + escapeHtml('BEAT ' + b.position + ' — ' + b.name + decLabel) + '"></button>';
+  }).join('');
   $('dots').querySelectorAll('.dot-nav').forEach((el) => {
     el.addEventListener('click', () => navigateTo(el.dataset.id));
   });
 }
+
+/* ------------------------------------------------------------------ review
+   Aprovar/Rejeitar + feedback DESTE beat. Porta única de escrita: POST
+   /api/review (decisão) e /api/review/clear (desfazer) — mesmo padrão da
+   parte 3 para assets ("nunca reuso silencioso", aqui "nunca decisão sem
+   clique"). O texto do feedback tem sua própria via, saveFeedback(), pra
+   permitir anotar um beat sem necessariamente aprovar/rejeitar ainda. */
+
+function renderReviewCounts() {
+  const el = $('reviewCounts');
+  if (!state.project) { el.hidden = true; return; }
+  const c = state.reviewCounts || { approved: 0, rejected: 0, withFeedback: 0 };
+  const pending = Math.max(0, state.project.beats.length - c.approved - c.rejected);
+  el.hidden = false;
+  el.textContent =
+    c.approved + ' aprovado' + (c.approved === 1 ? '' : 's') + ' · ' +
+    c.rejected + ' rejeitado' + (c.rejected === 1 ? '' : 's') + ' · ' +
+    pending + ' pendente' + (pending === 1 ? '' : 's');
+}
+
+function renderReviewBar(beat) {
+  const rec = state.review ? state.review.beats[beat.id] : null;
+  const decision = rec ? rec.decision : null;
+
+  $('reviewStatusPill').dataset.decision = decision || '';
+  $('reviewStatusText').textContent =
+    decision === 'approved' ? 'aprovado' : decision === 'rejected' ? 'rejeitado' : 'pendente';
+  $('reviewUndoBtn').classList.toggle('hide', !decision);
+  $('approveBtn').classList.toggle('is-active', decision === 'approved');
+  $('rejectBtn').classList.toggle('is-active', decision === 'rejected');
+  $('feedbackSave').textContent = '';
+
+  bindFeedback($('feedbackInput'), (rec && rec.feedback) || '');
+  renderReviewCounts();
+}
+
+function bindFeedback(el, value) {
+  el.value = value;
+  el.dataset.original = value;
+  el.dataset.dirty = '0';
+  autosize(el);
+  if (el.dataset.bound === '1') return;
+  el.dataset.bound = '1';
+  el.addEventListener('input', () => {
+    el.dataset.dirty = el.value !== el.dataset.original ? '1' : '0';
+    autosize(el);
+  });
+  el.addEventListener('blur', () => { saveFeedback(); });
+  el.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Escape') { el.value = el.dataset.original; el.dataset.dirty = '0'; autosize(el); el.blur(); }
+  });
+}
+
+/** Grava só o texto do feedback — não decide nada. No-op se nada mudou. */
+async function saveFeedback() {
+  const el = $('feedbackInput');
+  if (!el || el.value === el.dataset.original) return;
+  const beat = currentBeat();
+  if (!beat) return;
+  const rec = state.review ? state.review.beats[beat.id] : null;
+  const decision = rec ? rec.decision : null;
+
+  $('feedbackSave').textContent = 'salvando…';
+  try {
+    const body = { dir: state.dir, beatId: beat.id, feedback: el.value };
+    if (decision) body.decision = decision; // preserva a decisão já tomada
+    const data = await api('/api/review', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+    });
+    state.review = data.review;
+    state.reviewCounts = data.counts;
+    el.dataset.original = el.value;
+    el.dataset.dirty = '0';
+    $('feedbackSave').textContent = 'salvo';
+    renderReviewCounts();
+    setTimeout(() => { if ($('feedbackSave').textContent === 'salvo') $('feedbackSave').textContent = ''; }, 1800);
+  } catch (err) {
+    $('feedbackSave').textContent = 'falhou';
+  }
+}
+
+/** Aprovar/Rejeitar. Clicar na decisão já ativa DESFAZ (volta a pendente). */
+async function setDecision(decision) {
+  const beat = currentBeat();
+  if (!beat) return;
+  const rec = state.review ? state.review.beats[beat.id] : null;
+  const already = rec && rec.decision === decision;
+  try {
+    let data;
+    if (already) {
+      data = await api('/api/review/clear', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dir: state.dir, beatId: beat.id }),
+      });
+    } else {
+      data = await api('/api/review', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dir: state.dir, beatId: beat.id, decision, feedback: $('feedbackInput').value }),
+      });
+    }
+    state.review = data.review;
+    state.reviewCounts = data.counts;
+    renderPager(beat);  // recolore o dot deste beat no pager
+    renderReviewBar(beat);
+  } catch (err) {
+    $('feedbackSave').textContent = 'falhou: ' + err.message;
+  }
+}
+
+$('approveBtn').addEventListener('mousedown', (ev) => ev.preventDefault()); // não tira foco do feedback -> sem corrida com o blur-save
+$('rejectBtn').addEventListener('mousedown', (ev) => ev.preventDefault());
+$('reviewUndoBtn').addEventListener('mousedown', (ev) => ev.preventDefault());
+$('approveBtn').addEventListener('click', () => setDecision('approved'));
+$('rejectBtn').addEventListener('click', () => setDecision('rejected'));
+$('reviewUndoBtn').addEventListener('click', async () => {
+  const beat = currentBeat();
+  if (!beat) return;
+  const data = await api('/api/review/clear', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ dir: state.dir, beatId: beat.id }),
+  });
+  state.review = data.review;
+  state.reviewCounts = data.counts;
+  renderPager(beat);
+  renderReviewBar(beat);
+});
+
+/* ------------------------------------------------------------- "Enviar" */
+let toastTimer = null;
+function showToast({ title, message, copyText, isError }) {
+  $('toastTitle').textContent = title;
+  $('toastMsg').textContent = message;
+  lastSummaryText = copyText || '';
+  $('toastCopyBtn').style.display = copyText ? '' : 'none';
+  $('toast').classList.toggle('is-error', Boolean(isError));
+  $('toast').classList.add('is-visible');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => $('toast').classList.remove('is-visible'), isError ? 7000 : 10000);
+}
+$('toastCopyBtn').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(lastSummaryText);
+    $('toastCopyBtn').textContent = 'copiado!';
+    setTimeout(() => { $('toastCopyBtn').textContent = 'copiar resumo'; }, 1500);
+  } catch {
+    // clipboard indisponível (contexto não seguro, permissão negada) — sem drama, o texto já está no toast.
+  }
+});
+$('toastCloseBtn').addEventListener('click', () => {
+  $('toast').classList.remove('is-visible');
+  clearTimeout(toastTimer);
+});
+
+$('submitReviewBtn').addEventListener('click', async () => {
+  const btn = $('submitReviewBtn');
+  btn.disabled = true;
+  try {
+    await flushPending();
+    await saveFeedback();
+    const data = await api('/api/review/submit', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dir: state.dir }),
+    });
+    state.review = data.review;
+    state.reviewCounts = data.counts;
+    renderReviewCounts();
+    const beat = currentBeat();
+    if (beat) renderReviewBar(beat);
+    const c = data.counts;
+    showToast({
+      title: 'Enviado ✓',
+      message: c.approved + ' aprovado(s) · ' + c.rejected + ' rejeitado(s)' +
+        (c.withFeedback ? ' · ' + c.withFeedback + ' com feedback' : '') +
+        '. Peça ao Claude para continuar a partir daqui.',
+      copyText: 'Revisão de "' + state.dir + '" enviada — ' + c.approved + ' aprovados, ' + c.rejected +
+        ' rejeitados' + (c.withFeedback ? ', ' + c.withFeedback + ' com feedback' : '') +
+        '. Continue a partir de ' + data.digestPath + '.',
+    });
+  } catch (err) {
+    showToast({ title: 'Falha ao enviar', message: err.message, isError: true });
+  } finally {
+    btn.disabled = false;
+  }
+});
 
 /* ------------------------------------------------------------ campos/save */
 function bindValue(el, value) {
@@ -883,6 +1250,7 @@ async function flushPending() {
 async function navigateTo(id) {
   if (id === state.beatId) return;
   await flushPending();
+  await saveFeedback(); // não depende do blur: Alt+Seta pode navegar com o campo ainda focado
   activeFrameName = null;
   await reloadProject();
   goTo(state.dir, id);
@@ -891,6 +1259,7 @@ async function navigateTo(id) {
 /** Sai das páginas de beat para a página de assets do mesmo projeto. */
 async function goAssets() {
   await flushPending();
+  await saveFeedback();
   location.href = 'assets.html#/' + encodeURIComponent(state.dir);
 }
 
@@ -911,16 +1280,19 @@ $('nextBtn').addEventListener('click', () => {
 
 document.addEventListener('keydown', (ev) => {
   const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || '');
-  if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 's') { ev.preventDefault(); flushPending(); return; }
+  if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 's') { ev.preventDefault(); flushPending(); saveFeedback(); return; }
   if (ev.altKey && ev.key === 'ArrowLeft') { ev.preventDefault(); step(-1); return; }
   if (ev.altKey && ev.key === 'ArrowRight') { ev.preventDefault(); step(1); return; }
   if (typing) return;
   if (ev.key === 'ArrowLeft') { ev.preventDefault(); step(-1); }
   if (ev.key === 'ArrowRight') { ev.preventDefault(); step(1); }
+  if (ev.key.toLowerCase() === 'a') { ev.preventDefault(); setDecision('approved'); }
+  if (ev.key.toLowerCase() === 'r') { ev.preventDefault(); setDecision('rejected'); }
 });
 
 window.addEventListener('beforeunload', (ev) => {
-  if (state.pending.size) { ev.preventDefault(); ev.returnValue = ''; }
+  const feedbackDirty = $('feedbackInput')?.dataset.dirty === '1';
+  if (state.pending.size || feedbackDirty) { ev.preventDefault(); ev.returnValue = ''; }
 });
 
 function escapeHtml(s) {

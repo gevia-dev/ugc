@@ -15,6 +15,9 @@
 # Biblioteca de assets é DADO local, não código
 assets/
 
+# Estado de revisão (aprovar/rejeitar + feedback por beat) é DADO local, não código
+review/
+
 # Lixo do runtime
 *.stackdump
 node_modules/
