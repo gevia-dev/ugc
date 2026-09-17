@@ -1,0 +1,933 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>video-workflow · beats</title>
+<style>
+/* ===========================================================================
+   Design tokens — COPIADOS de content-chisel/src/index.css (modo claro).
+   Nada aqui importa nem referencia aquele repo em runtime: são valores fixos.
+   Parte 3 (página de assets): use estes mesmos tokens, não invente novos.
+   =========================================================================== */
+:root {
+  /* base */
+  --background: 0 0% 100%;
+  --foreground: 0 0% 15%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 15%;
+
+  /* primary: laranja Content Chisel */
+  --primary: 13 99% 62%;
+  --primary-foreground: 0 0% 100%;
+  --primary-light: 13 99% 72%;
+  --primary-dark: 13 99% 52%;
+  --primary-hover: 13 99% 55%;
+
+  --secondary: 0 0% 96%;
+  --secondary-foreground: 0 0% 25%;
+  --muted: 0 0% 96%;
+  --muted-foreground: 0 0% 40%;
+  --accent: 13 99% 75%;
+
+  --success: 142 69% 58%;
+  --warning: 38 92% 50%;
+  --destructive: 0 84% 60%;
+
+  --border: 0 0% 90%;
+  --input: 0 0% 90%;
+  --ring: 13 99% 62%;
+
+  /* elevação em camadas */
+  --shadow-elevation-1:
+    0 1px 2px 0 hsl(240 15% 10% / 0.04),
+    0 4px 8px -2px hsl(240 15% 10% / 0.06),
+    0 16px 28px -12px hsl(240 20% 20% / 0.10);
+  --shadow-elevation-2:
+    0 2px 4px 0 hsl(240 15% 10% / 0.05),
+    0 8px 16px -4px hsl(240 15% 10% / 0.08),
+    0 24px 48px -16px hsl(240 20% 20% / 0.14);
+  --shadow-inset-subtle: inset 0 1px 2px 0 hsl(240 15% 10% / 0.05);
+  --shadow-elevation-1-depth:
+    inset 0 1px 0 0 hsl(0 0% 100% / 1),
+    inset 0 -3px 6px -1px hsl(240 20% 10% / 0.08),
+    inset 0 -1px 0 0 hsl(240 20% 10% / 0.1),
+    0 2px 4px 0 hsl(240 20% 10% / 0.06),
+    0 12px 20px -4px hsl(var(--primary) / 0.06),
+    0 32px 52px -16px hsl(var(--primary) / 0.1);
+  --shadow-elevation-2-depth:
+    inset 0 1px 0 0 hsl(0 0% 100% / 1),
+    inset 0 -4px 8px -1px hsl(240 20% 10% / 0.1),
+    inset 0 -1px 0 0 hsl(240 20% 10% / 0.12),
+    0 3px 6px 0 hsl(240 20% 10% / 0.07),
+    0 18px 28px -4px hsl(var(--primary) / 0.08),
+    0 44px 68px -16px hsl(var(--primary) / 0.13);
+
+  /* superfície da página */
+  --home-surface-top: 30 25% 98.5%;
+  --home-surface-bottom: 30 15% 96%;
+
+  /* raios concêntricos (múltiplos de 4px) */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-3xl: 32px;
+  --corner-shape: superellipse(1.5);
+  --radius: var(--radius-md);
+
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+
+  --mono: ui-monospace, 'SFMono-Regular', 'Cascadia Mono', 'Consolas', monospace;
+}
+
+/* Cantos contínuos (Chromium 139+); outros motores caem no arco circular. */
+.card, .btn, .pill, .field, .rail-seg, .chip, .frame-figure, .thumb, .topbar {
+  corner-shape: var(--corner-shape);
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color: hsl(var(--foreground));
+  background:
+    linear-gradient(180deg, hsl(var(--home-surface-top)) 0%, hsl(var(--home-surface-bottom)) 100%)
+    fixed;
+  -webkit-font-smoothing: antialiased;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+/* ---------------------------------------------------------------- topbar -- */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 14px 28px;
+  background: hsl(var(--background) / 0.82);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid hsl(var(--border));
+}
+.brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.brand-mark {
+  width: 34px; height: 34px;
+  display: grid; place-items: center;
+  border-radius: var(--radius-md);
+  corner-shape: var(--corner-shape);
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  box-shadow: var(--shadow-elevation-1);
+  flex: none;
+}
+.brand-mark svg { width: 18px; height: 18px; }
+.brand-text { min-width: 0; }
+.brand-title {
+  font-weight: 650; font-size: 14px; letter-spacing: -0.01em;
+  display: block; line-height: 1.2;
+}
+.brand-sub {
+  font-size: 12px; color: hsl(var(--muted-foreground));
+  font-family: var(--mono);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  display: block; max-width: 320px;
+}
+.tabs { display: flex; gap: 4px; margin-left: 6px; }
+.tab {
+  font-size: 13px; font-weight: 550;
+  padding: 7px 14px;
+  border-radius: 999px; corner-shape: round;
+  color: hsl(var(--muted-foreground));
+  background: transparent; border: 1px solid transparent;
+  cursor: pointer; text-decoration: none;
+  transition: var(--transition-fast);
+}
+.tab:hover { background: hsl(var(--secondary)); color: hsl(var(--foreground)); }
+.tab.is-active {
+  background: hsl(var(--primary) / 0.1);
+  color: hsl(var(--primary-dark));
+  border-color: hsl(var(--primary) / 0.22);
+}
+.topbar-spacer { flex: 1; }
+
+select.project-select {
+  font: inherit; font-size: 13px;
+  padding: 7px 12px;
+  border-radius: var(--radius-sm); corner-shape: var(--corner-shape);
+  border: 1px solid hsl(var(--input));
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  box-shadow: var(--shadow-inset-subtle);
+  cursor: pointer;
+  max-width: 230px;
+}
+select.project-select:focus-visible { outline: 2px solid hsl(var(--ring) / 0.5); outline-offset: 1px; }
+
+.savestate {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 12.5px; font-weight: 550;
+  padding: 7px 14px;
+  border-radius: 999px; corner-shape: round;
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--secondary));
+  color: hsl(var(--muted-foreground));
+  white-space: nowrap;
+  transition: var(--transition-fast);
+}
+.savestate .dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: hsl(var(--muted-foreground) / 0.5);
+  flex: none;
+}
+.savestate[data-state="saving"] { border-color: hsl(var(--warning) / 0.35); background: hsl(var(--warning) / 0.1); color: hsl(38 70% 34%); }
+.savestate[data-state="saving"] .dot { background: hsl(var(--warning)); animation: pulse 1s ease-in-out infinite; }
+.savestate[data-state="saved"] { border-color: hsl(var(--success) / 0.35); background: hsl(var(--success) / 0.12); color: hsl(142 45% 28%); }
+.savestate[data-state="saved"] .dot { background: hsl(var(--success)); }
+.savestate[data-state="dirty"] { border-color: hsl(var(--primary) / 0.32); background: hsl(var(--primary) / 0.1); color: hsl(var(--primary-dark)); }
+.savestate[data-state="dirty"] .dot { background: hsl(var(--primary)); }
+.savestate[data-state="error"] { border-color: hsl(var(--destructive) / 0.4); background: hsl(var(--destructive) / 0.1); color: hsl(0 60% 38%); }
+.savestate[data-state="error"] .dot { background: hsl(var(--destructive)); }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* ------------------------------------------------------------------ rail -- */
+.railwrap {
+  padding: 18px 28px 4px;
+  max-width: 1560px; margin: 0 auto; width: 100%;
+}
+.rail { display: flex; gap: 14px; align-items: flex-end; }
+.rail-chunk { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.rail-chunk-label {
+  font-size: 10.5px; font-weight: 650; letter-spacing: 0.07em; text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+  font-family: var(--mono);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.rail-segs { display: flex; gap: 3px; }
+.rail-seg {
+  height: 30px; min-width: 22px;
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius-xs);
+  background: hsl(var(--background));
+  box-shadow: var(--shadow-inset-subtle);
+  cursor: pointer;
+  display: grid; place-items: center;
+  font-size: 11px; font-weight: 600; font-family: var(--mono);
+  color: hsl(var(--muted-foreground));
+  padding: 0 6px;
+  transition: var(--transition-fast);
+}
+.rail-seg:hover { border-color: hsl(var(--primary) / 0.45); color: hsl(var(--primary-dark)); }
+.rail-seg.is-active {
+  background: hsl(var(--primary));
+  border-color: hsl(var(--primary-dark));
+  color: hsl(var(--primary-foreground));
+  box-shadow: 0 2px 8px -1px hsl(var(--primary) / 0.45);
+}
+
+/* ----------------------------------------------------------------- stage -- */
+.stage {
+  max-width: 1560px; margin: 0 auto;
+  padding: 18px 28px 40px;
+  display: grid;
+  grid-template-columns: minmax(340px, 0.86fr) minmax(460px, 1.14fr);
+  gap: 22px;
+  align-items: start;
+}
+@media (max-width: 1120px) { .stage { grid-template-columns: 1fr; } }
+
+.card {
+  background: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-elevation-1-depth);
+}
+
+/* frame ------------------------------------------------------------------- */
+.pane-frame { position: sticky; top: 84px; }
+@media (max-width: 1120px) { .pane-frame { position: static; } }
+.frame-card { padding: 16px; }
+.frame-figure {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background:
+    repeating-conic-gradient(hsl(0 0% 97%) 0% 25%, hsl(0 0% 93%) 0% 50%) 50% / 18px 18px;
+  border: 1px solid hsl(var(--border));
+  display: grid; place-items: center;
+  min-height: 260px;
+}
+.frame-figure img { display: block; width: 100%; height: auto; }
+.frame-empty {
+  padding: 48px 20px; text-align: center;
+  color: hsl(var(--muted-foreground)); font-size: 13.5px;
+}
+.frame-badge {
+  position: absolute; left: 10px; top: 10px;
+  font-family: var(--mono); font-size: 11px; font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 999px; corner-shape: round;
+  background: hsl(0 0% 8% / 0.68);
+  color: hsl(0 0% 100%);
+  backdrop-filter: blur(6px);
+  letter-spacing: 0.01em;
+}
+.frame-meta {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  padding: 12px 4px 2px;
+}
+.frame-meta .fm-name { font-family: var(--mono); font-size: 12.5px; font-weight: 600; }
+.frame-meta .fm-sub { font-size: 12px; color: hsl(var(--muted-foreground)); }
+.strip { display: flex; gap: 8px; padding: 10px 4px 2px; flex-wrap: wrap; }
+.thumb {
+  width: 64px; height: 44px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1.5px solid hsl(var(--border));
+  background: hsl(var(--secondary));
+  cursor: pointer; padding: 0;
+  transition: var(--transition-fast);
+}
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb:hover { border-color: hsl(var(--primary) / 0.5); }
+.thumb.is-active { border-color: hsl(var(--primary)); box-shadow: 0 0 0 3px hsl(var(--primary) / 0.16); }
+.strip-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+  color: hsl(var(--muted-foreground)); padding: 14px 4px 0;
+}
+
+/* beat -------------------------------------------------------------------- */
+.beat-card { padding: 26px 28px 28px; }
+.beat-head { border-bottom: 1px solid hsl(var(--border)); padding-bottom: 20px; margin-bottom: 22px; }
+.beat-kicker { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.beat-counter {
+  font-size: 22px; font-weight: 720; letter-spacing: -0.025em;
+  color: hsl(var(--foreground));
+}
+.beat-counter em { font-style: normal; color: hsl(var(--primary)); }
+.beat-counter .of { font-size: 14px; font-weight: 500; color: hsl(var(--muted-foreground)); }
+.pill {
+  font-size: 11.5px; font-weight: 600; font-family: var(--mono);
+  padding: 4px 10px;
+  border-radius: var(--radius-xs);
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+  white-space: nowrap;
+}
+.pill.pill-time { background: hsl(var(--primary) / 0.09); border-color: hsl(var(--primary) / 0.22); color: hsl(var(--primary-dark)); }
+
+.name-input {
+  font: inherit;
+  font-size: 19px; font-weight: 640; letter-spacing: -0.015em;
+  width: 100%;
+  padding: 8px 12px;
+  margin-left: -12px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm); corner-shape: var(--corner-shape);
+  background: transparent;
+  color: hsl(var(--foreground));
+  transition: var(--transition-fast);
+}
+.name-input:hover { background: hsl(var(--secondary) / 0.7); }
+.name-input:focus { outline: none; background: hsl(var(--background)); border-color: hsl(var(--ring) / 0.5); box-shadow: 0 0 0 3px hsl(var(--ring) / 0.14); }
+
+.field { margin-bottom: 16px; }
+.field-head { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.field-icon {
+  width: 22px; height: 22px; flex: none;
+  display: grid; place-items: center;
+  border-radius: var(--radius-xs); corner-shape: var(--corner-shape);
+  background: hsl(var(--primary) / 0.1);
+  color: hsl(var(--primary-dark));
+}
+.field-icon svg { width: 13px; height: 13px; }
+.field-label {
+  font-size: 11.5px; font-weight: 680; letter-spacing: 0.08em; text-transform: uppercase;
+  color: hsl(var(--secondary-foreground));
+}
+.field-hint { font-size: 11.5px; color: hsl(var(--muted-foreground)); margin-left: auto; }
+.field-empty-tag {
+  font-size: 10.5px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+  padding: 2px 7px; border-radius: var(--radius-xs); corner-shape: var(--corner-shape);
+  background: hsl(var(--muted));
+}
+
+textarea.autotext {
+  font: inherit;
+  font-size: 14.5px; line-height: 1.62;
+  width: 100%;
+  min-height: 46px;
+  padding: 11px 14px;
+  resize: none; overflow: hidden;
+  border: 1px solid hsl(var(--input));
+  border-radius: var(--radius-md); corner-shape: var(--corner-shape);
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  box-shadow: var(--shadow-inset-subtle);
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+textarea.autotext::placeholder { color: hsl(var(--muted-foreground) / 0.75); }
+textarea.autotext:hover { border-color: hsl(0 0% 82%); }
+textarea.autotext:focus {
+  outline: none;
+  border-color: hsl(var(--ring) / 0.65);
+  box-shadow: 0 0 0 3px hsl(var(--ring) / 0.14), var(--shadow-inset-subtle);
+}
+textarea.autotext[data-dirty="1"] { border-color: hsl(var(--primary) / 0.55); background: hsl(var(--primary) / 0.03); }
+textarea.autotext.mono { font-family: var(--mono); font-size: 13px; }
+
+.desc-block { margin-bottom: 22px; }
+.desc-block textarea { background: hsl(var(--secondary) / 0.55); }
+
+.grid-fields { display: grid; grid-template-columns: 1fr; gap: 2px; }
+
+/* pager ------------------------------------------------------------------- */
+.pager {
+  position: sticky; bottom: 0; z-index: 30;
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  padding: 12px 28px 16px;
+  background: linear-gradient(180deg, hsl(var(--home-surface-bottom) / 0) 0%, hsl(var(--home-surface-bottom)) 45%);
+}
+.btn {
+  font: inherit; font-size: 13.5px; font-weight: 600;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 18px;
+  border-radius: var(--radius-lg); corner-shape: var(--corner-shape);
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  box-shadow: var(--shadow-elevation-1);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.btn:hover:not(:disabled) { border-color: hsl(var(--primary) / 0.4); color: hsl(var(--primary-dark)); transform: translateY(-1px); box-shadow: var(--shadow-elevation-2); }
+.btn:active:not(:disabled) { transform: translateY(0); }
+.btn:disabled { opacity: 0.42; cursor: not-allowed; }
+.btn svg { width: 14px; height: 14px; }
+.btn-primary {
+  background: hsl(var(--primary)); color: hsl(var(--primary-foreground));
+  border-color: hsl(var(--primary-dark));
+}
+.btn-primary:hover:not(:disabled) { background: hsl(var(--primary-hover)); color: hsl(var(--primary-foreground)); }
+.pager-dots { display: flex; gap: 6px; padding: 0 8px; }
+.dot-nav {
+  width: 9px; height: 9px; padding: 0;
+  border-radius: 50%; corner-shape: round;
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--background));
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.dot-nav:hover { border-color: hsl(var(--primary) / 0.6); }
+.dot-nav.is-active { background: hsl(var(--primary)); border-color: hsl(var(--primary-dark)); transform: scale(1.35); }
+
+.kbd-hint {
+  text-align: center; font-size: 11.5px; color: hsl(var(--muted-foreground));
+  padding-bottom: 20px;
+}
+kbd {
+  font-family: var(--mono); font-size: 10.5px;
+  padding: 2px 6px; border-radius: var(--radius-xs); corner-shape: var(--corner-shape);
+  border: 1px solid hsl(var(--border)); border-bottom-width: 2px;
+  background: hsl(var(--background));
+  color: hsl(var(--secondary-foreground));
+}
+
+.boot {
+  max-width: 560px; margin: 90px auto; padding: 32px;
+  text-align: center; color: hsl(var(--muted-foreground));
+}
+.boot h1 { font-size: 17px; color: hsl(var(--foreground)); margin: 0 0 8px; }
+.boot code { font-family: var(--mono); font-size: 12.5px; }
+.hide { display: none !important; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="5" width="14" height="14" rx="3"></rect>
+        <path d="M16 10.5 22 7v10l-6-3.5z"></path>
+      </svg>
+    </span>
+    <span class="brand-text">
+      <strong class="brand-title">video-workflow</strong>
+      <span class="brand-sub" id="brandSub">carregando…</span>
+    </span>
+  </div>
+
+  <nav class="tabs" aria-label="Seções">
+    <a class="tab is-active" href="#" id="tabBeats">Beats</a>
+    <a class="tab" href="assets.html" id="tabAssets">Assets</a>
+  </nav>
+
+  <span class="topbar-spacer"></span>
+
+  <select class="project-select" id="projectSelect" aria-label="Projeto"></select>
+  <span class="savestate" id="saveState" data-state="idle"><span class="dot"></span><span id="saveText">pronto</span></span>
+</header>
+
+<div class="railwrap"><div class="rail" id="rail"></div></div>
+
+<main class="stage" id="stage" hidden>
+  <section class="pane pane-frame">
+    <div class="card frame-card">
+      <div class="frame-figure" id="frameFigure"></div>
+      <div class="frame-meta">
+        <span class="fm-name" id="frameName">—</span>
+        <span class="fm-sub" id="frameSub"></span>
+      </div>
+      <div id="stripWrap" class="hide">
+        <div class="strip-label">Frames no intervalo deste beat</div>
+        <div class="strip" id="strip"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pane pane-beat">
+    <div class="card beat-card">
+      <div class="beat-head">
+        <div class="beat-kicker">
+          <span class="beat-counter" id="beatCounter"></span>
+          <span class="pill pill-time" id="pillTime"></span>
+          <span class="pill" id="pillChunk"></span>
+          <span class="pill" id="pillId"></span>
+        </div>
+        <input class="name-input" id="beatName" data-key="name" placeholder="nome do beat" autocomplete="off" spellcheck="false">
+      </div>
+
+      <div class="desc-block">
+        <div class="field-head">
+          <span class="field-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+          </span>
+          <span class="field-label">Descrição do plano</span>
+          <span class="field-hint">o que a cena faz neste beat</span>
+        </div>
+        <textarea class="autotext" id="fDescription" data-key="description" rows="3" placeholder="sem descrição"></textarea>
+      </div>
+
+      <div class="grid-fields" id="fields"></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="pager">
+    <button class="btn" id="prevBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      Anterior
+    </button>
+    <div class="pager-dots" id="dots"></div>
+    <button class="btn btn-primary" id="nextBtn">
+      Próximo
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+  <div class="kbd-hint">
+    <kbd>←</kbd> <kbd>→</kbd> navega entre beats · <kbd>Ctrl</kbd>+<kbd>S</kbd> salva · o campo salva sozinho ao perder o foco
+  </div>
+</footer>
+
+<div class="boot" id="boot"><h1>Carregando projeto…</h1><p>Falando com <code>/api/projects</code>.</p></div>
+
+<script>
+'use strict';
+
+/* ===========================================================================
+   Estado e rotas
+   - URL: #/<pastaDoProjeto>/<idDoBeat>   ex.: #/seedance-pizza-osmo/1.3
+   - Toda leitura vem de GET /api/project?dir=… ; toda escrita vai em POST /api/beat.
+   =========================================================================== */
+
+const FIELDS = [
+  { key: 'dialogue', label: 'Fala',   hint: 'o que é dito', icon: 'M21 12a8 8 0 0 1-8 8H7l-4 3v-5.5A8 8 0 0 1 13 4a8 8 0 0 1 8 8z' },
+  { key: 'camera',   label: 'Câmera', hint: 'enquadramento e movimento', icon: 'M2 7h13v10H2zM15 11l7-4v10l-7-4z' },
+  { key: 'sfx',      label: 'SFX',    hint: 'som e ruído', icon: 'M3 12h3l3-6v12l-3-6H3zM15 9a4 4 0 0 1 0 6M18 6a8 8 0 0 1 0 12' },
+  { key: 'vfx',      label: 'VFX',    hint: 'efeito visual e grafismo', icon: 'M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9zM18.5 16l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z' },
+];
+
+const state = {
+  projects: [],
+  dir: null,
+  project: null,
+  beatId: null,
+  pending: new Map(), // key -> valor ainda não salvo
+  saving: 0,
+};
+
+const $ = (id) => document.getElementById(id);
+
+function fmtSec(s) {
+  if (s == null) return '—';
+  return s.toFixed(3).replace('.', ',') + 's';
+}
+
+function api(path, options) {
+  return fetch(path, options).then(async (r) => {
+    const data = await r.json().catch(() => ({ ok: false, error: 'resposta não-JSON' }));
+    if (!r.ok || data.ok === false) throw new Error(data.error || ('erro ' + r.status));
+    return data;
+  });
+}
+
+/* --------------------------------------------------------------- savestate */
+let saveTimer = null;
+function setSave(stateName, text) {
+  const el = $('saveState');
+  el.dataset.state = stateName;
+  $('saveText').textContent = text;
+  clearTimeout(saveTimer);
+  if (stateName === 'saved' || stateName === 'idle') {
+    saveTimer = setTimeout(() => {
+      if ($('saveState').dataset.state === stateName && state.pending.size === 0) {
+        $('saveState').dataset.state = 'idle';
+        $('saveText').textContent = 'tudo salvo';
+      }
+    }, 2600);
+  }
+}
+
+/* ------------------------------------------------------------------ router */
+function parseHash() {
+  const raw = (location.hash || '').replace(/^#\/?/, '');
+  const [dir, id] = raw.split('/');
+  return { dir: dir || null, id: id ? decodeURIComponent(id) : null };
+}
+
+function goTo(dir, id, replace) {
+  const hash = '#/' + dir + '/' + id;
+  if (replace) location.replace(hash);
+  else location.hash = hash;
+}
+
+/* ------------------------------------------------------------------- boot */
+async function boot() {
+  try {
+    const data = await api('/api/projects');
+    state.projects = data.projects;
+  } catch (err) {
+    $('boot').innerHTML = '<h1>Não consegui falar com o servidor</h1><p>' + escapeHtml(err.message) + '</p>';
+    return;
+  }
+  if (!state.projects.length) {
+    $('boot').innerHTML = '<h1>Nenhum projeto encontrado</h1><p>Nenhuma pasta com <code>PROMPT_n_*.md</code> na raiz.</p>';
+    return;
+  }
+
+  const sel = $('projectSelect');
+  sel.innerHTML = state.projects
+    .map((p) => '<option value="' + escapeHtml(p.dir) + '">' + escapeHtml(p.dir) + '</option>')
+    .join('');
+  sel.addEventListener('change', () => goTo(sel.value, ''));
+
+  window.addEventListener('hashchange', onRoute);
+  const want = parseHash();
+  if (!want.dir) {
+    goTo(state.projects[0].dir, '', true);
+    await onRoute();
+  } else {
+    await onRoute();
+  }
+}
+
+async function onRoute() {
+  const want = parseHash();
+  const dir = want.dir && state.projects.some((p) => p.dir === want.dir) ? want.dir : state.projects[0].dir;
+
+  if (dir !== state.dir || !state.project) {
+    try {
+      const data = await api('/api/project?dir=' + encodeURIComponent(dir));
+      state.dir = dir;
+      state.project = data.project;
+      state.pending.clear();
+    } catch (err) {
+      $('boot').innerHTML = '<h1>Erro ao ler o projeto</h1><p>' + escapeHtml(err.message) + '</p>';
+      return;
+    }
+  }
+
+  const beats = state.project.beats;
+  let beat = beats.find((b) => b.id === want.id);
+  if (!beat) {
+    // aceita também o número global do beat (ex.: #/dir/3)
+    const n = Number(want.id);
+    if (Number.isInteger(n) && n >= 1 && n <= beats.length) beat = beats[n - 1];
+  }
+  if (!beat) {
+    goTo(dir, beats[0].id, true);
+    return;
+  }
+
+  state.beatId = beat.id;
+  $('projectSelect').value = dir;
+  $('boot').hidden = true;
+  $('boot').classList.add('hide');
+  $('stage').hidden = false;
+  render();
+}
+
+/* ----------------------------------------------------------------- reload */
+async function reloadProject() {
+  const data = await api('/api/project?dir=' + encodeURIComponent(state.dir));
+  state.project = data.project;
+}
+
+/* ----------------------------------------------------------------- render */
+function currentBeat() {
+  return state.project.beats.find((b) => b.id === state.beatId) || null;
+}
+
+function render() {
+  const p = state.project;
+  const beat = currentBeat();
+  if (!beat) return;
+
+  $('brandSub').textContent = p.dir + ' · ' + p.beats.length + ' beats · ' + p.frameCount + ' frames';
+  document.title = 'BEAT ' + beat.position + '/' + beat.total + ' · ' + p.dir;
+  $('tabAssets').href = 'assets.html#/' + encodeURIComponent(p.dir);
+
+  renderRail();
+  renderFrame(beat);
+  renderBeat(beat);
+  renderPager(beat);
+}
+
+function renderRail() {
+  const p = state.project;
+  const rail = $('rail');
+  const total = (p.end ?? 1) - (p.start ?? 0) || 1;
+  rail.innerHTML = p.chunks.map((chunk) => {
+    const beats = p.beats.filter((b) => b.chunk === chunk.chunk);
+    const span = beats.reduce((acc, b) => acc + (b.duration || 0), 0);
+    const segs = beats.map((b) => {
+      const active = b.id === state.beatId ? ' is-active' : '';
+      const grow = Math.max(0.4, b.duration || 1);
+      return '<button class="rail-seg' + active + '" style="flex:' + grow + ' 1 0" ' +
+        'data-id="' + escapeHtml(b.id) + '" title="' + escapeHtml('BEAT ' + b.position + ' — ' + b.name) + '">' +
+        b.position + '</button>';
+    }).join('');
+    return '<div class="rail-chunk" style="flex:' + Math.max(0.5, span) + ' 1 0">' +
+      '<div class="rail-chunk-label">chunk ' + chunk.chunk + ' · ' + escapeHtml(chunk.name) + '</div>' +
+      '<div class="rail-segs">' + segs + '</div></div>';
+  }).join('');
+  rail.querySelectorAll('.rail-seg').forEach((el) => {
+    el.addEventListener('click', () => navigateTo(el.dataset.id));
+  });
+  void total;
+}
+
+let activeFrameName = null;
+
+function renderFrame(beat) {
+  const fig = $('frameFigure');
+  const frames = beat.frames || [];
+  const chosen = frames.find((f) => f.name === activeFrameName) || beat.frame;
+
+  if (!chosen) {
+    fig.innerHTML = '<div class="frame-empty">Nenhum frame do teardown cai no intervalo deste beat.</div>';
+    $('frameName').textContent = '—';
+    $('frameSub').textContent = '';
+    $('stripWrap').classList.add('hide');
+    return;
+  }
+
+  fig.innerHTML =
+    '<img alt="frame ' + escapeHtml(chosen.name) + '" src="' + escapeHtml(chosen.url) + '">' +
+    '<span class="frame-badge">' + fmtSec(chosen.t) + '</span>';
+  $('frameName').textContent = chosen.name;
+  $('frameSub').textContent = frames.length + ' frame' + (frames.length === 1 ? '' : 's') + ' no intervalo';
+
+  if (frames.length > 1) {
+    $('stripWrap').classList.remove('hide');
+    $('strip').innerHTML = frames.map((f) =>
+      '<button class="thumb' + (f.name === chosen.name ? ' is-active' : '') + '" data-name="' + escapeHtml(f.name) + '" ' +
+      'title="' + escapeHtml(f.name + ' @ ' + fmtSec(f.t)) + '"><img alt="" src="' + escapeHtml(f.url) + '"></button>'
+    ).join('');
+    $('strip').querySelectorAll('.thumb').forEach((el) => {
+      el.addEventListener('click', () => { activeFrameName = el.dataset.name; renderFrame(currentBeat()); });
+    });
+  } else {
+    $('stripWrap').classList.add('hide');
+  }
+}
+
+function renderBeat(beat) {
+  $('beatCounter').innerHTML = 'BEAT <em>' + beat.position + '</em> <span class="of">de ' + beat.total + '</span>';
+  $('pillTime').textContent = beat.startLabel + ' → ' + beat.endLabel + '  ·  ' + (beat.durationLabel || fmtSec(beat.duration));
+  $('pillChunk').textContent = 'chunk ' + beat.chunk + ' · ' + beat.chunkFile;
+  $('pillId').textContent = 'id ' + beat.id;
+
+  bindValue($('beatName'), beat.name ?? '');
+  bindValue($('fDescription'), beat.description ?? '');
+
+  $('fields').innerHTML = FIELDS.map((f) => {
+    const value = beat[f.key];
+    const emptyTag = (value == null)
+      ? '<span class="field-empty-tag">não planejado</span>' : '';
+    return '<div class="field">' +
+      '<div class="field-head">' +
+        '<span class="field-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="' + f.icon + '"/></svg></span>' +
+        '<label class="field-label" for="f_' + f.key + '">' + f.label + '</label>' +
+        emptyTag +
+        '<span class="field-hint">' + f.hint + '</span>' +
+      '</div>' +
+      '<textarea class="autotext" id="f_' + f.key + '" data-key="' + f.key + '" rows="1" placeholder="' + f.label + ' não planejada neste beat"></textarea>' +
+    '</div>';
+  }).join('');
+
+  for (const f of FIELDS) bindValue($('f_' + f.key), beat[f.key] ?? '');
+}
+
+const ARROW_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>';
+
+function renderPager(beat) {
+  const beats = state.project.beats;
+  $('prevBtn').disabled = beat.position <= 1;
+
+  // Depois da última página de beat vem a página de ASSETS.
+  const isLast = beat.position >= beat.total;
+  const next = $('nextBtn');
+  next.disabled = false;
+  next.dataset.target = isLast ? 'assets' : 'beat';
+  next.innerHTML = (isLast ? 'Assets' : 'Próximo') + ' ' + ARROW_SVG;
+  next.title = isLast ? 'Última página de beat — segue para a página de assets' : '';
+
+  $('dots').innerHTML = beats.map((b) =>
+    '<button class="dot-nav' + (b.id === state.beatId ? ' is-active' : '') + '" data-id="' + escapeHtml(b.id) + '" ' +
+    'title="' + escapeHtml('BEAT ' + b.position + ' — ' + b.name) + '"></button>'
+  ).join('');
+  $('dots').querySelectorAll('.dot-nav').forEach((el) => {
+    el.addEventListener('click', () => navigateTo(el.dataset.id));
+  });
+}
+
+/* ------------------------------------------------------------ campos/save */
+function bindValue(el, value) {
+  if (!el) return;
+  el.value = value;
+  el.dataset.original = value;
+  el.dataset.dirty = '0';
+  if (el.tagName === 'TEXTAREA') autosize(el);
+  if (el.dataset.bound === '1') return;
+  el.dataset.bound = '1';
+  el.addEventListener('input', () => {
+    const dirty = el.value !== el.dataset.original;
+    el.dataset.dirty = dirty ? '1' : '0';
+    if (dirty) state.pending.set(el.dataset.key, el);
+    else state.pending.delete(el.dataset.key);
+    if (el.tagName === 'TEXTAREA') autosize(el);
+    setSave(state.pending.size ? 'dirty' : 'idle', state.pending.size ? 'alterações não salvas' : 'tudo salvo');
+  });
+  el.addEventListener('blur', () => { saveField(el); });
+  el.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Escape') { el.value = el.dataset.original; el.dataset.dirty = '0'; state.pending.delete(el.dataset.key); autosize(el); el.blur(); }
+  });
+}
+
+function autosize(el) {
+  el.style.height = 'auto';
+  el.style.height = (el.scrollHeight + 2) + 'px';
+}
+
+async function saveField(el) {
+  if (!el || el.value === el.dataset.original) { state.pending.delete(el?.dataset.key); return; }
+  const key = el.dataset.key;
+  const raw = el.value;
+  // campo rotulado vazio => null (remove a linha do markdown); nome/descrição vazios ficam string.
+  const isLabelled = FIELDS.some((f) => f.key === key);
+  const value = isLabelled && raw.trim() === '' ? null : raw;
+
+  state.saving += 1;
+  setSave('saving', 'salvando ' + key + '…');
+  try {
+    const data = await api('/api/beat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dir: state.dir, id: state.beatId, patch: { [key]: value } }),
+    });
+    el.dataset.original = raw;
+    el.dataset.dirty = '0';
+    state.pending.delete(key);
+    if (data.beat) {
+      const idx = state.project.beats.findIndex((b) => b.id === data.beat.id);
+      if (idx >= 0) state.project.beats[idx] = data.beat;
+    }
+    setSave('saved', data.changed ? ('salvo: ' + data.changedKeys.join(', ')) : 'sem alterações');
+  } catch (err) {
+    setSave('error', 'falhou: ' + err.message);
+  } finally {
+    state.saving -= 1;
+  }
+}
+
+async function flushPending() {
+  const els = [...state.pending.values()];
+  for (const el of els) await saveField(el);
+}
+
+/* ------------------------------------------------------------- navegação */
+async function navigateTo(id) {
+  if (id === state.beatId) return;
+  await flushPending();
+  activeFrameName = null;
+  await reloadProject();
+  goTo(state.dir, id);
+}
+
+/** Sai das páginas de beat para a página de assets do mesmo projeto. */
+async function goAssets() {
+  await flushPending();
+  location.href = 'assets.html#/' + encodeURIComponent(state.dir);
+}
+
+async function step(delta) {
+  const beat = currentBeat();
+  if (!beat) return;
+  const next = state.project.beats[beat.position - 1 + delta];
+  if (next) { await navigateTo(next.id); return; }
+  // passou da última página de beat -> assets
+  if (delta > 0) await goAssets();
+}
+
+$('prevBtn').addEventListener('click', () => step(-1));
+$('nextBtn').addEventListener('click', () => {
+  if ($('nextBtn').dataset.target === 'assets') goAssets();
+  else step(1);
+});
+
+document.addEventListener('keydown', (ev) => {
+  const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || '');
+  if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 's') { ev.preventDefault(); flushPending(); return; }
+  if (ev.altKey && ev.key === 'ArrowLeft') { ev.preventDefault(); step(-1); return; }
+  if (ev.altKey && ev.key === 'ArrowRight') { ev.preventDefault(); step(1); return; }
+  if (typing) return;
+  if (ev.key === 'ArrowLeft') { ev.preventDefault(); step(-1); }
+  if (ev.key === 'ArrowRight') { ev.preventDefault(); step(1); }
+});
+
+window.addEventListener('beforeunload', (ev) => {
+  if (state.pending.size) { ev.preventDefault(); ev.returnValue = ''; }
+});
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+boot();
+</script>
+</body>
+</html>
