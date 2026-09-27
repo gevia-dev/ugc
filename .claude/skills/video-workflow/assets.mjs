@@ -51,10 +51,11 @@ import { normalizeTerm, slugify, stripArticles } from './recurring.mjs';
 export const ASSETS_DIRNAME = 'assets';
 export const KINDS = ['pessoa', 'objeto', 'local', 'prop'];
 export const ROLES = ['image', 'voice'];
-export const LIBRARY_VERSION = 1;
+export const LIBRARY_VERSION = 2;
 
 /** Slug: minúsculas, dígitos e hífen. Sem separador, sem `..`, sem acento. */
 const SLUG_RE = /^[a-z0-9][a-z0-9-]{1,62}$/;
+const FOLDER_RE = /^[a-z0-9][a-z0-9-]{1,62}$/;
 /** Nome de arquivo: sem separador, sem `..`, extensão de mídia conhecida. */
 const FILE_RE = /^[A-Za-z0-9][A-Za-z0-9._-]{0,120}\.(png|jpe?g|webp|gif|mp3|wav|m4a|ogg|opus|flac)$/i;
 /** Nome de projeto (para `approved/<projeto>.json`). Mesmo padrão do server. */
@@ -86,6 +87,12 @@ export function safeProjectName(project) {
 export function safeSlug(slug) {
   const raw = String(slug ?? '').trim().toLowerCase();
   if (!SLUG_RE.test(raw) || raw.includes('..')) throw new Error(`slug inválido: ${slug}`);
+  return raw;
+}
+
+export function safeFolderId(folder) {
+  const raw = String(folder ?? '').trim().toLowerCase();
+  if (!FOLDER_RE.test(raw) || raw.includes('..')) throw new Error(`pasta inválida: ${folder}`);
   return raw;
 }
 
@@ -140,7 +147,7 @@ function nowIso() {
 }
 
 export function emptyLibrary() {
-  return { version: LIBRARY_VERSION, updatedAt: nowIso(), assets: [] };
+  return { version: LIBRARY_VERSION, updatedAt: nowIso(), folders: [], assets: [] };
 }
 
 /** Lê `assets/assets.json`. Biblioteca inexistente = biblioteca vazia. */
@@ -155,12 +162,15 @@ export function readLibrary(root) {
   }
   if (!data || !Array.isArray(data.assets)) throw new Error('assets.json sem a lista `assets`');
   data.version ??= LIBRARY_VERSION;
+  data.folders ??= [];
   return data;
 }
 
 export function writeLibrary(root, library) {
   library.version = LIBRARY_VERSION;
   library.updatedAt = nowIso();
+  library.folders ??= [];
+  library.folders.sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
   library.assets.sort((a, b) => a.slug.localeCompare(b.slug));
   return writeJsonAtomic(libraryPath(root), library);
 }
@@ -168,6 +178,32 @@ export function writeLibrary(root, library) {
 export function findAsset(library, slug) {
   const want = String(slug ?? '').toLowerCase();
   return library.assets.find((a) => a.slug === want) ?? null;
+}
+
+export function createFolder(root, input) {
+  const name = String(input.name ?? '').trim();
+  if (name.length < 2 || name.length > 60) throw new Error('nome da pasta deve ter entre 2 e 60 caracteres');
+  const id = safeFolderId(input.id || slugify(name));
+  const library = readLibrary(root);
+  if ((library.folders ?? []).some((folder) => folder.id === id)) throw new Error(`pasta já existe: ${id}`);
+  const folder = { id, name, createdAt: nowIso() };
+  library.folders.push(folder);
+  writeLibrary(root, library);
+  return folder;
+}
+
+export function moveAssetToFolder(root, slug, folderId) {
+  const library = readLibrary(root);
+  const asset = findAsset(library, safeSlug(slug));
+  if (!asset) throw new Error(`asset não encontrado: ${slug}`);
+  const folder = folderId ? safeFolderId(folderId) : null;
+  if (folder && !(library.folders ?? []).some((entry) => entry.id === folder)) {
+    throw new Error(`pasta não encontrada: ${folder}`);
+  }
+  asset.folder = folder;
+  asset.updatedAt = nowIso();
+  writeLibrary(root, library);
+  return asset;
 }
 
 // ---------------------------------------------------------------------------
@@ -198,7 +234,7 @@ export function normalizeTags(tags) {
  *
  * @param {string} root
  * @param {{slug:string, kind?:string, name?:string, tags?:string[]|string,
- *          origem?:string, voiceNotes?:string, voiceLang?:string}} patch
+ *          origem?:string, folder?:string, voiceNotes?:string, voiceLang?:string}} patch
  */
 export function upsertAsset(root, patch) {
   const slug = safeSlug(patch.slug);
@@ -219,6 +255,7 @@ export function upsertAsset(root, patch) {
       files: [],
       voice: null,
       origem: String(patch.origem ?? '').trim() || 'upload manual',
+      folder: null,
       createdAt: nowIso(),
       updatedAt: nowIso(),
     };
@@ -231,6 +268,14 @@ export function upsertAsset(root, patch) {
     }
     if (patch.name != null && String(patch.name).trim()) asset.name = String(patch.name).trim();
     if (patch.origem != null && String(patch.origem).trim()) asset.origem = String(patch.origem).trim();
+  }
+
+  if (patch.folder != null) {
+    const folder = String(patch.folder).trim() ? safeFolderId(patch.folder) : null;
+    if (folder && !(library.folders ?? []).some((entry) => entry.id === folder)) {
+      throw new Error(`pasta não encontrada: ${folder}`);
+    }
+    asset.folder = folder;
   }
 
   if (patch.tags != null) {
@@ -278,6 +323,7 @@ export function addAssetFile(root, input) {
     name: input.assetName,
     tags: input.tags,
     origem: input.origem,
+    folder: input.folder,
   });
 
   const abs = safeAssetFilePath(root, slug, fileName);

@@ -24,3 +24,11 @@ node_modules/
 
 # Lock de runtime do Claude Code
 .claude/scheduled_tasks.lock
+
+# Segredos
+.env
+
+# Garimpo Apify: dados brutos e históricos (reprocessáveis, pesados)
+pizza-shortlist/raw/
+pizza-shortlist/ytdlp/
+pizza-shortlist/log-*.txt

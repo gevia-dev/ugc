@@ -30,10 +30,12 @@ import {
   addAssetFile,
   approvedPath,
   clearDecision,
+  createFolder,
   assetsRoot,
   libraryPath,
   listApprovedProjects,
   matchCandidate,
+  moveAssetToFolder,
   readApproved,
   readLibrary,
   recordDecision,
@@ -116,6 +118,7 @@ function publicLibrary(root) {
     dir: `${ASSETS_DIRNAME}/`,
     kinds: KINDS,
     roles: ROLES,
+    folders: library.folders ?? [],
     assets: library.assets.map(publicAsset),
   };
 }
@@ -163,6 +166,7 @@ route('POST', '/api/asset', async (req, res) => {
     name: body.name,
     tags: body.tags,
     origem: body.origem,
+    folder: body.folder,
     voiceLang: body.voiceLang,
     voiceNotes: body.voiceNotes,
   });
@@ -185,6 +189,7 @@ route('POST', '/api/asset/file', async (req, res, url) => {
     assetName: q.get('assetName') ?? undefined,
     tags: q.get('tags') ?? undefined,
     origem: q.get('origem') ?? undefined,
+    folder: q.get('folder') ?? undefined,
     voiceLang: q.get('voiceLang') ?? undefined,
     voiceNotes: q.get('voiceNotes') ?? undefined,
     bytes,
@@ -194,6 +199,24 @@ route('POST', '/api/asset/file', async (req, res, url) => {
     file: { ...file, url: fileUrl(asset.slug, file.name) },
     asset: publicAsset(asset),
   });
+});
+
+// ---------------------------------------------------------------------------
+// POST /api/asset/folder e /api/asset/move — organização virtual da biblioteca
+// ---------------------------------------------------------------------------
+
+route('POST', '/api/asset/folder', async (req, res) => {
+  const root = getRoot();
+  const body = await readJsonBody(req);
+  const folder = createFolder(root, { name: body.name, id: body.id });
+  sendJson(res, 200, { ok: true, folder, library: publicLibrary(root) });
+});
+
+route('POST', '/api/asset/move', async (req, res) => {
+  const root = getRoot();
+  const body = await readJsonBody(req);
+  const asset = moveAssetToFolder(root, body.slug, body.folder || null);
+  sendJson(res, 200, { ok: true, asset: publicAsset(asset), library: publicLibrary(root) });
 });
 
 // ---------------------------------------------------------------------------

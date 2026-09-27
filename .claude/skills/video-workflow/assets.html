@@ -398,6 +398,263 @@ input[type="text"].inp.mono { font-family: var(--mono); font-size: 13px; }
 .boot h1 { font-size: 17px; color: hsl(var(--foreground)); margin: 0 0 8px; }
 .boot code { font-family: var(--mono); font-size: 12.5px; }
 .hide { display: none !important; }
+
+/* --------------------------------------------------------------------------
+   Workspace compacto: cada coluna rola por conta propria e a biblioteca fica
+   sempre visivel. Os estilos abaixo substituem a composicao antiga sem mudar
+   os contratos da API.
+   -------------------------------------------------------------------------- */
+:root {
+  --workspace-bg: #f6f5f2;
+  --panel-bg: #ffffff;
+  --ink: #20201e;
+  --quiet: #74736f;
+  --line: #e8e6e1;
+  --soft: #f4f3f0;
+  --accent-ink: #a83f25;
+  --accent-soft: #fff0e9;
+}
+html { background: var(--workspace-bg); }
+body {
+  height: 100dvh;
+  overflow: hidden;
+  font-family: "Geist Sans", "Aptos", "Helvetica Neue", system-ui, sans-serif;
+  background: var(--workspace-bg);
+  color: var(--ink);
+  font-size: 13px;
+}
+.topbar {
+  height: 56px;
+  padding: 8px 16px;
+  gap: 14px;
+  border-radius: 0;
+  background: rgba(255, 255, 255, .94);
+  box-shadow: none;
+}
+.brand { gap: 9px; }
+.brand-mark { width: 30px; height: 30px; border-radius: 8px; box-shadow: none; }
+.brand-title { font-size: 13px; }
+.brand-sub { max-width: 270px; font-size: 10px; }
+.tabs { margin-left: 2px; }
+.tab { padding: 5px 10px; border-radius: 6px; font-size: 12px; }
+.tab.is-active { background: var(--soft); border-color: var(--line); color: var(--ink); }
+.project-select { height: 32px; }
+.savestate { padding: 5px 9px; border-radius: 6px; max-width: 240px; font-size: 11px; }
+
+.stage {
+  width: 100%;
+  max-width: none;
+  height: calc(100dvh - 56px);
+  min-height: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(360px, .82fr) minmax(620px, 1.58fr);
+  gap: 0;
+  overflow: hidden;
+}
+.workspace-pane {
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel-bg);
+  border-right: 1px solid var(--line);
+}
+.workspace-pane:last-child { border-right: 0; }
+.pane-head {
+  position: relative;
+  z-index: 10;
+  flex: none;
+  min-height: 66px;
+  padding: 13px 16px 11px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255,255,255,.96);
+}
+.pane-title-row { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.pane-title { margin: 0; font-size: 14px; font-weight: 650; letter-spacing: -.01em; }
+.pane-count { color: var(--quiet); font-size: 11px; white-space: nowrap; }
+.pane-note { margin: 4px 0 0; color: var(--quiet); font-size: 11px; line-height: 1.35; }
+.pane-scroll {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: #cfccc5 transparent;
+}
+.pane-scroll::-webkit-scrollbar, .library-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.pane-scroll::-webkit-scrollbar-thumb, .library-scroll::-webkit-scrollbar-thumb { background: #cfccc5; border: 2px solid white; border-radius: 8px; }
+.pane-footer {
+  flex: none;
+  padding: 8px 12px;
+  border-top: 1px solid var(--line);
+  color: var(--quiet);
+  font: 10px/1.3 var(--mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pane-actions { margin-left: auto; display: flex; gap: 6px; }
+
+.btn {
+  min-height: 30px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  box-shadow: none;
+  font-size: 12px;
+  transition: background .15s ease, border-color .15s ease, color .15s ease, transform .15s ease;
+}
+.btn:hover:not(:disabled) { transform: none; box-shadow: none; background: var(--soft); color: var(--ink); border-color: #d5d2cc; }
+.btn:active:not(:disabled) { transform: scale(.98); }
+.btn-primary { background: var(--ink); border-color: var(--ink); color: white; }
+.btn-primary:hover:not(:disabled) { background: #3a3936; border-color: #3a3936; color: white; }
+.btn-sm { min-height: 26px; padding: 4px 8px; font-size: 11px; }
+.btn-icon { width: 30px; padding: 0; justify-content: center; }
+
+.cand {
+  margin: 0 0 8px;
+  padding: 11px;
+  border-radius: 8px;
+  box-shadow: none;
+  background: white;
+}
+.cand:hover { border-color: #d7d4ce; }
+.cand[data-decision="sim"], .cand[data-decision="novo"] { background: #f5f8f3; border-color: #dce8d7; }
+.cand-head { gap: 6px; margin-bottom: 5px; }
+.cand-term { font-size: 13px; }
+.cand-slug { font-size: 10px; }
+.cand-ev { margin: 4px 0 7px; font-size: 11px; line-height: 1.4; }
+.chips { gap: 4px; margin-bottom: 7px; }
+.chip, .pill { padding: 2px 6px; border-radius: 4px; font-size: 9.5px; }
+.confirm, .nomatch { padding: 7px; gap: 6px; border-radius: 6px; font-size: 11px; }
+.confirm-text { font-size: 11px; }
+.confirm-why { font-size: 9.5px; }
+.decision { padding: 5px 7px; border-radius: 5px; font-size: 10.5px; }
+.asset-drop {
+  margin-top: 7px;
+  padding: 8px;
+  border: 1px dashed #d5d2cc;
+  border-radius: 6px;
+  color: var(--quiet);
+  font-size: 10.5px;
+  text-align: center;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+.asset-drop.is-over { background: var(--accent-soft); border-color: #d98264; color: var(--accent-ink); }
+
+.library-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 112px;
+  gap: 6px;
+  margin-top: 9px;
+}
+.library-workspace { min-width: 0; min-height: 0; overflow: hidden; display: grid; grid-template-columns: 172px minmax(0, 1fr); flex: 1; }
+.folder-rail { min-width: 0; padding: 10px 8px; border-right: 1px solid var(--line); background: #fbfaf8; }
+.folder-label { padding: 3px 8px 7px; color: var(--quiet); font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.folder-item {
+  width: 100%; min-height: 30px; display: flex; align-items: center; gap: 7px;
+  padding: 6px 8px; border: 1px solid transparent; border-radius: 6px;
+  background: transparent; color: var(--ink); font: inherit; font-size: 11px; text-align: left; cursor: pointer;
+}
+.folder-item:hover, .folder-item.is-over { background: white; border-color: var(--line); }
+.folder-item.is-active { background: var(--accent-soft); color: var(--accent-ink); }
+.folder-item svg { width: 14px; height: 14px; flex: none; }
+.folder-item .folder-count { margin-left: auto; color: var(--quiet); font: 9px var(--mono); }
+.library-scroll { min-width: 0; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 12px; scrollbar-width: thin; scrollbar-color: #cfccc5 transparent; }
+.search-wrap { position: relative; }
+.search-wrap svg { position: absolute; left: 9px; top: 8px; width: 14px; height: 14px; color: var(--quiet); pointer-events: none; }
+.search-input, .filter-select {
+  width: 100%; height: 30px; padding: 5px 8px;
+  border: 1px solid var(--line); border-radius: 6px;
+  background: var(--soft); color: var(--ink); font: inherit; font-size: 11px;
+}
+.search-input { padding-left: 29px; }
+.search-input:focus, .filter-select:focus { outline: 2px solid rgba(255, 101, 61, .18); border-color: #d98264; }
+.asset-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.asset-row {
+  position: relative;
+  display: block;
+  min-width: 0;
+  margin: 0;
+  padding: 8px;
+  border-radius: 8px;
+  box-shadow: none;
+  cursor: grab;
+  transition: border-color .15s ease, background .15s ease, transform .15s ease;
+}
+.asset-row:hover { border-color: #cfcbc4; background: #fbfaf8; transform: translateY(-1px); }
+.asset-row:active { cursor: grabbing; }
+.asset-row.is-dragging { opacity: .45; }
+.asset-thumbs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; width: 100%; max-width: none; margin-bottom: 8px; }
+.thumb { width: auto; height: 54px; border-radius: 5px; border-width: 1px; }
+.asset-body { width: 100%; }
+.asset-name-line { display: flex; align-items: center; gap: 5px; min-width: 0; }
+.asset-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+.asset-slug { margin-top: 2px; font-size: 9.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.asset-meta { font-size: 9.5px; line-height: 1.35; }
+.asset-row .chips { margin-top: 5px !important; white-space: nowrap; overflow: hidden; flex-wrap: nowrap; }
+.asset-voice { margin-top: 6px; }
+.asset-voice audio { height: 26px; max-width: 100%; }
+.voice-tag { padding: 1px 5px; font-size: 8.5px; }
+.drag-hint { position: absolute; right: 8px; bottom: 7px; color: #aaa69f; font-size: 9px; }
+.approved-row { margin-bottom: 6px; padding: 8px; border-radius: 6px; font-size: 11px; gap: 6px; }
+.approved-row .ar-sub { width: 100%; margin-left: 0; font-size: 9.5px; }
+.emptystate { padding: 24px 12px; border-radius: 8px; font-size: 11px; }
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(31, 30, 28, .42);
+  backdrop-filter: blur(3px);
+}
+.modal {
+  width: min(620px, 100%);
+  max-height: calc(100dvh - 40px);
+  overflow: auto;
+  border: 1px solid rgba(255,255,255,.55);
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 20px 60px rgba(30, 26, 22, .18);
+}
+.modal-head { position: sticky; top: 0; z-index: 1; display: flex; align-items: flex-start; gap: 12px; padding: 16px 18px 12px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.97); }
+.modal-head h2 { margin: 0; font-size: 16px; letter-spacing: -.02em; }
+.modal-head p { margin: 3px 0 0; color: var(--quiet); font-size: 11px; }
+.modal-close { margin-left: auto; }
+.modal-body { padding: 16px 18px 18px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 7px; margin-top: 14px; }
+.field { margin-bottom: 11px; }
+.field-head { margin-bottom: 4px; }
+.field-label { font-size: 10px; }
+.field-hint { font-size: 10px; }
+input[type="text"].inp, select.kind-select { padding: 7px 9px; border-radius: 6px; box-shadow: none; font-size: 12px; }
+.filepick { padding: 12px; border-radius: 8px; font-size: 11px; }
+.filepick strong { font-size: 12px; }
+.novo-banner { margin-bottom: 12px; padding: 8px; border-radius: 6px; font-size: 11px; }
+body.modal-open { overflow: hidden; }
+
+@media (max-width: 1080px) {
+  .stage { grid-template-columns: minmax(300px, .8fr) minmax(440px, 1.2fr); }
+}
+@media (max-width: 720px) {
+  body { overflow: auto; height: auto; }
+  .brand-sub, .savestate { display: none; }
+  .topbar { gap: 8px; }
+  .tabs { order: 3; }
+  select.project-select { max-width: 150px; }
+  .stage { height: auto; min-height: calc(100dvh - 56px); overflow: visible; grid-template-columns: 1fr; }
+  .workspace-pane { grid-column: auto; min-height: 520px; height: auto; }
+  .library-workspace { grid-template-columns: 1fr; }
+  .folder-rail { display: flex; gap: 5px; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+  .folder-label { display: none; }
+  .folder-item { width: auto; flex: none; }
+  .asset-grid { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
@@ -428,43 +685,78 @@ input[type="text"].inp.mono { font-family: var(--mono); font-size: 13px; }
 </header>
 
 <main class="stage" id="stage" hidden>
-  <section>
-    <div class="card">
-      <div class="card-head">
-        <h2 class="card-title">Candidatos recorrentes</h2>
-        <span class="card-sub" id="candSub"></span>
+  <section class="workspace-pane" aria-labelledby="candidatesTitle">
+    <header class="pane-head">
+      <div class="pane-title-row">
+        <h2 class="pane-title" id="candidatesTitle">Candidatos</h2>
+        <span class="pane-count" id="candSub"></span>
       </div>
-      <p class="card-note">
-        Lido das seções <strong>BÍBLIA DE ESTILO</strong>, <strong>OBJETOS DE CENA</strong> e
-        <strong>CONTINUIDADE</strong> dos <code>PROMPT_n</code>. Nada aqui é anexado sozinho —
-        um candidato só entra na lista final depois que você confirma na tela.
-      </p>
-      <div id="candList"></div>
-    </div>
+      <p class="pane-note">Confirme a sugestão ou solte um asset da biblioteca sobre o candidato.</p>
+    </header>
+    <div class="pane-scroll" id="candList"></div>
   </section>
 
-  <section>
-    <div class="card" id="uploadCard">
-      <div class="card-head">
-        <h2 class="card-title">Subir para a biblioteca</h2>
-        <span class="card-sub">assets/&lt;slug&gt;/</span>
+  <section class="workspace-pane" aria-labelledby="libraryTitle">
+    <header class="pane-head">
+      <div class="pane-title-row">
+        <h2 class="pane-title" id="libraryTitle">Biblioteca</h2>
+        <span class="pane-count" id="libSub"></span>
+        <span class="pane-actions">
+          <button class="btn" id="openFolderModal" type="button">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h6l2 2h10v10H3z"/><path d="M12 11v5M9.5 13.5h5"/></svg>
+            Nova pasta
+          </button>
+          <button class="btn btn-primary" id="openAssetModal" type="button">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            Novo asset
+          </button>
+        </span>
       </div>
-      <p class="card-note">
-        A biblioteca é <strong>curada à mão</strong>: as <code>references/refN_*.png</code> do
-        projeto continuam lá e <strong>não</strong> são promovidas automaticamente. Só entra o que
-        você subir aqui. Em um asset <code>pessoa</code>, suba os ângulos <em>e</em> o mp3 de voz
-        no mesmo slug — rosto e voz viajam juntos.
-      </p>
+      <div class="library-toolbar">
+        <label class="search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+          <input class="search-input" id="assetSearch" type="search" placeholder="Buscar nome, slug ou tag" autocomplete="off" aria-label="Buscar na biblioteca">
+        </label>
+        <select class="filter-select" id="assetKind" aria-label="Filtrar por tipo">
+          <option value="">Todos os tipos</option>
+          <option value="pessoa">Pessoa</option>
+          <option value="objeto">Objeto</option>
+          <option value="local">Local</option>
+          <option value="prop">Prop</option>
+        </select>
+      </div>
+    </header>
+    <div class="library-workspace">
+      <nav class="folder-rail" aria-label="Pastas da biblioteca">
+        <div class="folder-label">Pastas</div>
+        <div id="folderList"></div>
+      </nav>
+      <div class="library-scroll"><div class="asset-grid" id="libList"></div></div>
+    </div>
+    <div class="pane-footer" id="libPath"></div>
+  </section>
+</main>
 
+<div class="modal-backdrop hide" id="assetModal" role="dialog" aria-modal="true" aria-labelledby="assetModalTitle">
+  <section class="modal" id="uploadCard">
+    <header class="modal-head">
+      <div>
+        <h2 id="assetModalTitle">Novo asset</h2>
+        <p>Adicione imagens e, para pessoas, a voz no mesmo asset.</p>
+      </div>
+      <button class="btn btn-icon modal-close" id="closeAssetModal" type="button" aria-label="Fechar modal">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 6 12 12M18 6 6 18"/></svg>
+      </button>
+    </header>
+    <div class="modal-body">
       <div class="novo-banner hide" id="novoBanner"></div>
-
       <div class="grid2">
         <div class="field">
           <div class="field-head"><span class="field-label">Slug</span><span class="field-hint">id estável</span></div>
           <input type="text" class="inp mono" id="uSlug" placeholder="pizzaiolo-osmo" autocomplete="off" spellcheck="false">
         </div>
         <div class="field">
-          <div class="field-head"><span class="field-label">Kind</span><span class="field-hint">tipo do asset</span></div>
+          <div class="field-head"><span class="field-label">Tipo</span></div>
           <select class="kind-select" id="uKind">
             <option value="pessoa">pessoa</option>
             <option value="objeto">objeto</option>
@@ -473,61 +765,62 @@ input[type="text"].inp.mono { font-family: var(--mono); font-size: 13px; }
           </select>
         </div>
       </div>
-
       <div class="field">
         <div class="field-head"><span class="field-label">Nome</span><span class="field-hint">rótulo humano</span></div>
         <input type="text" class="inp" id="uName" placeholder="Pizzaiolo de bandana" autocomplete="off">
       </div>
-
       <div class="field">
-        <div class="field-head"><span class="field-label">Tags</span><span class="field-hint">separadas por vírgula — é por elas que o casamento acontece</span></div>
+        <div class="field-head"><span class="field-label">Tags</span><span class="field-hint">separadas por vírgula</span></div>
         <input type="text" class="inp" id="uTags" placeholder="pizzaiolo, bandana preta, dólmã branco" autocomplete="off">
       </div>
-
       <div class="field">
-        <div class="field-head"><span class="field-label">Origem</span><span class="field-hint">de onde veio</span></div>
+        <div class="field-head"><span class="field-label">Origem</span></div>
         <input type="text" class="inp" id="uOrigem" placeholder="upload manual · seedance-pizza-osmo" autocomplete="off">
       </div>
-
+      <div class="field">
+        <div class="field-head"><span class="field-label">Pasta</span><span class="field-hint">organização da biblioteca</span></div>
+        <select class="kind-select" id="uFolder"></select>
+      </div>
       <label class="filepick" for="uFiles">
         <input type="file" id="uFiles" multiple accept=".png,.jpg,.jpeg,.webp,.gif,.mp3,.wav,.m4a,.ogg,.opus,.flac">
-        <strong>Escolher arquivos</strong>
-        imagens viram <code>role: image</code> · áudio vira <code>role: voice</code>
+        <strong>Escolher imagens ou áudio</strong>
+        PNG, JPG, WEBP, GIF, MP3, WAV, M4A, OGG, OPUS ou FLAC
       </label>
-      <div class="asset-meta" id="uPicked" style="margin-top:10px"></div>
-
-      <div style="display:flex; gap:9px; margin-top:16px;">
-        <button class="btn btn-primary" id="uSend" disabled>
+      <div class="asset-meta" id="uPicked" style="margin-top:8px"></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="uClear" type="button">Cancelar</button>
+        <button class="btn btn-primary" id="uSend" type="button" disabled>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
-          Enviar para a biblioteca
+          Adicionar à biblioteca
         </button>
-        <button class="btn btn-ghost" id="uClear">Limpar</button>
       </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head">
-        <h2 class="card-title">Biblioteca</h2>
-        <span class="card-sub" id="libSub"></span>
-      </div>
-      <div id="libList"></div>
-      <div class="pathline" id="libPath"></div>
-    </div>
-
-    <div class="card">
-      <div class="card-head">
-        <h2 class="card-title">Aprovados neste projeto</h2>
-        <span class="card-sub" id="apprSub"></span>
-      </div>
-      <p class="card-note">
-        É daqui que a parte 4 monta <code>image_references</code> e <code>audio_references</code>
-        do video-method.
-      </p>
-      <div id="apprList"></div>
-      <div class="pathline" id="apprPath"></div>
     </div>
   </section>
-</main>
+</div>
+
+<div class="modal-backdrop hide" id="folderModal" role="dialog" aria-modal="true" aria-labelledby="folderModalTitle">
+  <section class="modal" style="width:min(420px, 100%)">
+    <header class="modal-head">
+      <div>
+        <h2 id="folderModalTitle">Nova pasta</h2>
+        <p>Crie uma coleção para organizar os assets da biblioteca.</p>
+      </div>
+      <button class="btn btn-icon modal-close" id="closeFolderModal" type="button" aria-label="Fechar modal">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 6 12 12M18 6 6 18"/></svg>
+      </button>
+    </header>
+    <div class="modal-body">
+      <div class="field">
+        <div class="field-head"><span class="field-label">Nome da pasta</span></div>
+        <input type="text" class="inp" id="folderName" placeholder="Ex.: Produtos da campanha" maxlength="60" autocomplete="off">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="cancelFolder" type="button">Cancelar</button>
+        <button class="btn btn-primary" id="createFolder" type="button">Criar pasta</button>
+      </div>
+    </div>
+  </section>
+</div>
 
 <div class="boot" id="boot"><h1>Carregando biblioteca…</h1><p>Falando com <code>/api/projects</code>.</p></div>
 
@@ -549,6 +842,7 @@ const state = {
   recurring: null,
   library: null,
   approved: null,
+  activeFolder: 'all',
   picked: [],
   novoFor: null,      // candidato que está esperando um asset novo
   novoReady: null,    // slug recém-criado, esperando a confirmação "anexar"
@@ -627,8 +921,13 @@ async function onRoute() {
 }
 
 async function refresh() {
+  // Um projeto de chunk único nunca satisfaz o default de "≥2 chunks" do detector:
+  // o termo teria que se repetir entre chunks que não existem. Nesse caso o piso
+  // cai para 1, e os candidatos saem do único chunk. Com 2+ chunks, nada muda.
+  const proj = state.projects.find((p) => p.dir === state.dir);
+  const minChunks = Math.min(2, proj?.chunkCount || 2);
   const [rec, lib, appr] = await Promise.all([
-    api('/api/recurring?dir=' + encodeURIComponent(state.dir)),
+    api('/api/recurring?dir=' + encodeURIComponent(state.dir) + '&min=' + minChunks),
     api('/api/assets'),
     api('/api/approved?dir=' + encodeURIComponent(state.dir)),
   ]);
@@ -648,15 +947,12 @@ function render() {
   $('brandSub').textContent = state.dir + ' · ' + rec.candidates.length + ' candidatos · '
     + lib.assets.length + ' assets na biblioteca';
 
-  $('candSub').textContent = rec.candidates.length + ' em ≥' + rec.minChunks + ' chunks de ' + rec.chunkCount;
+  $('candSub').textContent = rec.candidates.length + ' candidatos · ' + appr.state.approved.length + ' associados';
   $('libSub').textContent = lib.assets.length + ' asset' + (lib.assets.length === 1 ? '' : 's');
-  $('apprSub').textContent = appr.state.approved.length + ' anexado'
-    + (appr.state.approved.length === 1 ? '' : 's')
-    + ' · ' + appr.state.rejected.length + ' recusado' + (appr.state.rejected.length === 1 ? '' : 's');
 
   renderCandidates();
+  renderFolders();
   renderLibrary();
-  renderApproved();
   renderNovoBanner();
 }
 
@@ -700,6 +996,9 @@ function renderCandidates() {
         + '</div>';
     }
 
+    const drop = !c.decision
+      ? '<div class="asset-drop" data-drop-key="' + escapeHtml(c.key) + '">Arraste um asset da biblioteca para cá</div>'
+      : '';
     return '<div class="cand" data-decision="' + escapeHtml(c.decision || '') + '">'
       + '<div class="cand-head">'
         + '<span class="pill pill-kind">' + escapeHtml(c.kind) + '</span>'
@@ -710,12 +1009,14 @@ function renderCandidates() {
       + (ev ? '<div class="cand-ev">' + escapeHtml(ev) + '</div>' : '')
       + (chips ? '<div class="chips">' + chips + '</div>' : '')
       + action
+      + drop
       + '</div>';
   }).join('');
 
   list.querySelectorAll('button[data-act]').forEach((el) => {
     el.addEventListener('click', () => onCandidateAction(el.dataset.act, el.dataset.key, el.dataset.slug || ''));
   });
+  bindDropTargets();
 }
 
 function btn(act, cand, slug, cls) {
@@ -736,8 +1037,9 @@ async function onCandidateAction(act, key, slug) {
     $('uName').value = cand.term;
     $('uTags').value = [cand.slug.split('-').join(' '), ...(cand.tags || []).slice(0, 5)].join(', ');
     $('uOrigem').value = 'upload manual · ' + state.dir;
+    $('uFolder').value = defaultFolderForKind(cand.kind);
     renderNovoBanner();
-    $('uploadCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    showAssetModal();
     setSave('dirty', 'suba os arquivos de ' + cand.slug);
     return;
   }
@@ -774,7 +1076,9 @@ async function decide(cand, decision, slug) {
         term: cand.term,
         decision,
         slug: decision === 'nao' ? undefined : slug,
-        matchedOn: cand.match ? cand.match.on : 'novo',
+        matchedOn: decision === 'novo'
+          ? 'novo'
+          : (cand.match?.slug === slug ? cand.match.on : 'drag-and-drop'),
       }),
     });
     state.approved = { ...state.approved, state: data.state, path: data.path, absolutePath: data.absolutePath };
@@ -803,9 +1107,10 @@ function renderNovoBanner() {
       state.novoFor = null;
       await decide(cand, 'novo', slug);
       renderNovoBanner();
+      closeAssetModal({ clearCandidate: false });
     });
     $('novoCancel').addEventListener('click', () => {
-      state.novoReady = null; state.novoFor = null; renderNovoBanner();
+      state.novoReady = null; state.novoFor = null; renderNovoBanner(); closeAssetModal({ clearCandidate: false });
     });
     return;
   }
@@ -814,7 +1119,7 @@ function renderNovoBanner() {
     el.innerHTML = 'Criando asset novo para <strong>' + escapeHtml(state.novoFor.term) + '</strong>'
       + ' — slug <code>' + escapeHtml(state.novoFor.slug) + '</code>. Suba os arquivos abaixo.'
       + '<span class="confirm-actions"><button class="btn btn-sm btn-ghost" id="novoCancel2">cancelar</button></span>';
-    $('novoCancel2').addEventListener('click', () => { state.novoFor = null; renderNovoBanner(); });
+    $('novoCancel2').addEventListener('click', () => { state.novoFor = null; renderNovoBanner(); closeAssetModal({ clearCandidate: false }); });
     return;
   }
   el.classList.add('hide');
@@ -828,7 +1133,21 @@ function renderLibrary() {
     $('libList').innerHTML = '<div class="emptystate">Biblioteca vazia. Suba a primeira referência acima.</div>';
     return;
   }
-  $('libList').innerHTML = lib.assets.map((a) => {
+  const query = $('assetSearch').value.trim().toLocaleLowerCase('pt-BR');
+  const kind = $('assetKind').value;
+  const assets = lib.assets.filter((a) => {
+    if (state.activeFolder === 'unfiled' && a.folder) return false;
+    if (state.activeFolder !== 'all' && state.activeFolder !== 'unfiled' && a.folder !== state.activeFolder) return false;
+    if (kind && a.kind !== kind) return false;
+    if (!query) return true;
+    return [a.name, a.slug, a.kind, a.origem, ...(a.tags || [])]
+      .join(' ').toLocaleLowerCase('pt-BR').includes(query);
+  });
+  if (!assets.length) {
+    $('libList').innerHTML = '<div class="emptystate">Nenhum asset encontrado com esses filtros.</div>';
+    return;
+  }
+  $('libList').innerHTML = assets.map((a) => {
     const images = a.files.filter((f) => f.role === 'image');
     const thumbs = images.slice(0, 4).map((f) =>
       '<span class="thumb"><img alt="' + escapeHtml(f.name) + '" src="' + escapeHtml(f.url) + '"></span>').join('')
@@ -838,10 +1157,10 @@ function renderLibrary() {
         + '<audio controls preload="none" src="' + escapeHtml(a.voice.url) + '"></audio>'
         + '<div class="asset-meta">' + escapeHtml(a.voice.name) + ' · ' + kb(a.voice.bytes) + '</div></div>'
       : '';
-    return '<div class="asset-row">'
+    return '<article class="asset-row" draggable="true" data-asset-slug="' + escapeHtml(a.slug) + '" title="Arraste para um candidato">'
       + '<div class="asset-thumbs">' + thumbs + '</div>'
       + '<div class="asset-body">'
-        + '<div><span class="pill pill-kind">' + escapeHtml(a.kind) + '</span> '
+        + '<div class="asset-name-line"><span class="pill pill-kind">' + escapeHtml(a.kind) + '</span> '
         + '<span class="asset-name">' + escapeHtml(a.name) + '</span></div>'
         + '<div class="asset-slug">' + escapeHtml(a.slug) + '</div>'
         + '<div class="asset-meta">' + images.length + ' imagem' + (images.length === 1 ? '' : 'ns')
@@ -850,29 +1169,202 @@ function renderLibrary() {
         + a.tags.slice(0, 8).map((t) => '<span class="chip">' + escapeHtml(t) + '</span>').join('')
         + '</div>'
         + voice
-      + '</div></div>';
+        + '<span class="drag-hint">arrastar</span>'
+      + '</div></article>';
   }).join('');
+  bindDraggableAssets();
 }
 
-function renderApproved() {
-  const appr = state.approved;
-  $('apprPath').textContent = appr.absolutePath;
-  const rows = appr.state.approved;
-  if (!rows.length) {
-    $('apprList').innerHTML = '<div class="emptystate">Nada anexado ainda. Confirme um candidato à esquerda.</div>';
-    return;
+function folderIcon() {
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 6h6l2 2h10v10H3z"/></svg>';
+}
+
+function renderFolders() {
+  const lib = state.library.library;
+  const folders = lib.folders || [];
+  if (state.activeFolder !== 'all' && state.activeFolder !== 'unfiled'
+      && !folders.some((folder) => folder.id === state.activeFolder)) state.activeFolder = 'all';
+  const count = (id) => lib.assets.filter((asset) => id === 'unfiled' ? !asset.folder : asset.folder === id).length;
+  const items = [
+    { id: 'all', name: 'Todos', count: lib.assets.length },
+    ...folders.map((folder) => ({ ...folder, count: count(folder.id) })),
+    { id: 'unfiled', name: 'Sem pasta', count: count('unfiled') },
+  ];
+  $('folderList').innerHTML = items.map((folder) =>
+    '<button class="folder-item' + (state.activeFolder === folder.id ? ' is-active' : '') + '" type="button" '
+      + 'data-folder="' + escapeHtml(folder.id) + '">' + folderIcon()
+      + '<span>' + escapeHtml(folder.name) + '</span><span class="folder-count">' + folder.count + '</span></button>'
+  ).join('');
+  $('folderList').querySelectorAll('.folder-item').forEach((el) => {
+    el.addEventListener('click', () => {
+      state.activeFolder = el.dataset.folder;
+      renderFolders();
+      renderLibrary();
+    });
+    el.addEventListener('dragover', (ev) => {
+      ev.preventDefault();
+      ev.dataTransfer.dropEffect = 'move';
+      el.classList.add('is-over');
+    });
+    el.addEventListener('dragleave', () => el.classList.remove('is-over'));
+    el.addEventListener('drop', async (ev) => {
+      ev.preventDefault();
+      el.classList.remove('is-over');
+      const slug = ev.dataTransfer.getData('text/plain');
+      if (!slug || el.dataset.folder === 'all') return;
+      await moveAsset(slug, el.dataset.folder === 'unfiled' ? '' : el.dataset.folder);
+    });
+  });
+  $('uFolder').innerHTML = '<option value="">Sem pasta</option>' + folders.map((folder) =>
+    '<option value="' + escapeHtml(folder.id) + '">' + escapeHtml(folder.name) + '</option>'
+  ).join('');
+}
+
+function defaultFolderForKind(kind) {
+  const preferred = { pessoa: 'personagens', local: 'locais', objeto: 'objetos-e-produtos', prop: 'props-e-utensilios' }[kind];
+  return (state.library.library.folders || []).some((folder) => folder.id === preferred) ? preferred : '';
+}
+
+async function moveAsset(slug, folder) {
+  setSave('saving', 'movendo asset…');
+  try {
+    const data = await api('/api/asset/move', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug, folder }),
+    });
+    state.library.library = data.library;
+    renderFolders();
+    renderLibrary();
+    setSave('saved', folder ? 'asset movido para a pasta' : 'asset removido da pasta');
+  } catch (err) {
+    setSave('error', 'não foi possível mover: ' + err.message);
   }
-  $('apprList').innerHTML = rows.map((e) =>
-    '<div class="approved-row">'
-    + '<span class="pill pill-kind">' + escapeHtml(e.kind) + '</span>'
-    + '<code>' + escapeHtml(e.slug) + '</code>'
-    + '<span>' + escapeHtml(e.term) + '</span>'
-    + '<span class="ar-sub">' + e.images.length + ' img' + (e.voice ? ' + voz' : '')
-    + ' · ' + escapeHtml(e.decision) + '</span>'
-    + '</div>').join('');
+}
+
+function bindDraggableAssets() {
+  document.querySelectorAll('.asset-row[draggable="true"]').forEach((el) => {
+    el.addEventListener('dragstart', (ev) => {
+      ev.dataTransfer.effectAllowed = 'copyMove';
+      ev.dataTransfer.setData('text/plain', el.dataset.assetSlug);
+      el.classList.add('is-dragging');
+    });
+    el.addEventListener('dragend', () => el.classList.remove('is-dragging'));
+  });
+}
+
+function bindDropTargets() {
+  document.querySelectorAll('.asset-drop').forEach((el) => {
+    el.addEventListener('dragover', (ev) => {
+      ev.preventDefault();
+      ev.dataTransfer.dropEffect = 'copy';
+      el.classList.add('is-over');
+    });
+    el.addEventListener('dragleave', () => el.classList.remove('is-over'));
+    el.addEventListener('drop', async (ev) => {
+      ev.preventDefault();
+      el.classList.remove('is-over');
+      const slug = ev.dataTransfer.getData('text/plain');
+      const cand = state.recurring.candidates.find((c) => c.key === el.dataset.dropKey);
+      const asset = state.library.library.assets.find((a) => a.slug === slug);
+      if (!cand || !asset) return;
+      await decide(cand, 'sim', asset.slug);
+    });
+  });
 }
 
 /* ---------------------------------------------------------------- uploads */
+function showAssetModal() {
+  $('assetModal').classList.remove('hide');
+  document.body.classList.add('modal-open');
+  $('uSlug').focus({ preventScroll: true });
+}
+
+function closeAssetModal({ clearCandidate = true } = {}) {
+  $('assetModal').classList.add('hide');
+  document.body.classList.remove('modal-open');
+  clearUploadForm();
+  if (clearCandidate) {
+    state.novoFor = null;
+    state.novoReady = null;
+    renderNovoBanner();
+  }
+  $('openAssetModal').focus();
+}
+
+function clearUploadForm() {
+  state.picked = [];
+  $('uFiles').value = '';
+  $('uPicked').textContent = '';
+  $('uSend').disabled = true;
+  ['uSlug', 'uName', 'uTags', 'uOrigem'].forEach((id) => { $(id).value = ''; });
+  $('uKind').value = 'pessoa';
+  $('uFolder').value = '';
+}
+
+$('openAssetModal').addEventListener('click', () => {
+  clearUploadForm();
+  state.novoFor = null;
+  state.novoReady = null;
+  renderNovoBanner();
+  $('uFolder').value = state.activeFolder !== 'all' && state.activeFolder !== 'unfiled'
+    ? state.activeFolder
+    : defaultFolderForKind('pessoa');
+  showAssetModal();
+});
+$('closeAssetModal').addEventListener('click', () => closeAssetModal());
+$('assetModal').addEventListener('click', (ev) => {
+  if (ev.target === $('assetModal')) closeAssetModal();
+});
+document.addEventListener('keydown', (ev) => {
+  if (ev.key === 'Escape' && !$('assetModal').classList.contains('hide')) closeAssetModal();
+  if (ev.key === 'Escape' && !$('folderModal').classList.contains('hide')) closeFolderModal();
+});
+$('assetSearch').addEventListener('input', renderLibrary);
+$('assetKind').addEventListener('change', renderLibrary);
+$('uKind').addEventListener('change', () => { $('uFolder').value = defaultFolderForKind($('uKind').value); });
+
+function showFolderModal() {
+  $('folderModal').classList.remove('hide');
+  document.body.classList.add('modal-open');
+  $('folderName').value = '';
+  $('folderName').focus({ preventScroll: true });
+}
+
+function closeFolderModal() {
+  $('folderModal').classList.add('hide');
+  document.body.classList.remove('modal-open');
+  $('openFolderModal').focus();
+}
+
+async function submitFolder() {
+  const name = $('folderName').value.trim();
+  if (name.length < 2) { setSave('error', 'informe um nome para a pasta'); return; }
+  setSave('saving', 'criando pasta…');
+  try {
+    const data = await api('/api/asset/folder', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+    });
+    state.library.library = data.library;
+    state.activeFolder = data.folder.id;
+    renderFolders();
+    renderLibrary();
+    closeFolderModal();
+    setSave('saved', 'pasta criada: ' + data.folder.name);
+  } catch (err) {
+    setSave('error', 'não foi possível criar: ' + err.message);
+  }
+}
+
+$('openFolderModal').addEventListener('click', showFolderModal);
+$('closeFolderModal').addEventListener('click', closeFolderModal);
+$('cancelFolder').addEventListener('click', closeFolderModal);
+$('createFolder').addEventListener('click', submitFolder);
+$('folderName').addEventListener('keydown', (ev) => { if (ev.key === 'Enter') submitFolder(); });
+$('folderModal').addEventListener('click', (ev) => { if (ev.target === $('folderModal')) closeFolderModal(); });
+
 $('uFiles').addEventListener('change', (ev) => {
   state.picked = [...ev.target.files];
   $('uPicked').textContent = state.picked.length
@@ -882,13 +1374,8 @@ $('uFiles').addEventListener('change', (ev) => {
 });
 
 $('uClear').addEventListener('click', () => {
-  state.picked = [];
-  $('uFiles').value = '';
-  $('uPicked').textContent = '';
-  $('uSend').disabled = true;
-  ['uSlug', 'uName', 'uTags', 'uOrigem'].forEach((id) => { $(id).value = ''; });
-  state.novoFor = null; state.novoReady = null;
-  renderNovoBanner();
+  clearUploadForm();
+  closeAssetModal();
 });
 
 $('uSend').addEventListener('click', async () => {
@@ -908,6 +1395,7 @@ $('uSend').addEventListener('click', async () => {
         assetName: $('uName').value.trim() || slug,
         tags: $('uTags').value,
         origem: $('uOrigem').value.trim() || ('upload manual · ' + state.dir),
+        folder: $('uFolder').value,
       });
       const r = await fetch('/api/asset/file?' + q.toString(), { method: 'POST', body: file });
       const data = await r.json().catch(() => ({ ok: false, error: 'resposta não-JSON' }));
@@ -923,6 +1411,7 @@ $('uSend').addEventListener('click', async () => {
       state.novoFor = null;
     }
     await refresh();
+    if (!state.novoReady) closeAssetModal({ clearCandidate: false });
   } catch (err) {
     setSave('error', 'upload falhou: ' + err.message);
   } finally {

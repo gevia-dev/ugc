@@ -70,18 +70,36 @@ Duas coisas que você, maestro, garante (sem reescrever a skill):
 
 ## POLÍTICA DE IMAGEM (vale para o fluxo inteiro)
 
-**Crédito de geração de vídeo é caro e é só para vídeo.** Nenhuma imagem passa pelo provedor de
-vídeo (Higgsfield) — nem para criar, nem para limpar, nem para "testar rápido". Essa é uma regra
-dura.
+**Imagem sai do Higgsfield *web*, no ilimitado — nunca do crédito do MCP.** O plano Ultra anual
+dá geração ilimitada de imagem, mas **só em higgsfield.ai**: o ilimitado não existe no MCP/CLI.
+Pelo MCP a mesma imagem cobra crédito, e crédito é para vídeo. Essa é uma regra dura.
 
 | Preciso de… | Caminho | Como |
 |---|---|---|
-| **EDITAR** uma imagem (limpar legenda/logo/UI, ajustar uma ref existente) | **Gemini web** | Claude in Chrome: abre o Gemini, sobe a imagem, pede a edição na interface, baixa o resultado para a pasta do projeto |
-| **CRIAR** uma imagem do zero (ref que não existe no material, placa de locação, prop) | **GPT web** | Claude in Chrome: abre o GPT, descreve, gera, baixa para a pasta do projeto |
-| Os dois caminhos web indisponíveis | **fallback: OpenRouter, modelo `muse` da Meta** | a chave vive no **VPS1** — use a skill `access-vps-1` para alcançá-la. Só nesse caso, e avisando o usuário antes |
+| **EDITAR** uma imagem (limpar legenda/logo/UI, ajustar uma ref existente) | **higgsfield.ai → Nano Banana Pro, Unlimited ligado** | Claude in Chrome: abre `https://higgsfield.ai/ai/image?model=nano_banana_pro` (ou escolhe Nano Banana Pro no seletor de modelo), sobe a imagem pelo `+` da barra de prompt, descreve a edição, gera |
+| **CRIAR** uma imagem do zero (ref que não existe no material, placa de locação, prop) | **higgsfield.ai → Nano Banana Pro, Unlimited ligado** | mesmo caminho, só com texto |
+| Chrome indisponível ou o site travou | **fallback: MCP `generate_image` com `nano_banana_pro`** | **paga crédito** (~2 por imagem em 2K). Só nesse caso, e avisando o usuário antes |
 
-Sempre pelo browser primeiro: o plano web já está pago e é o mais barato por imagem. O fallback de
-API é exceção, não atalho. Antes de usar o fallback, diga ao usuário que vai usar e por quê.
+**Checagem obrigatória antes de clicar em Generate** (é ela que garante o custo zero):
+
+1. O modelo é **Nano Banana Pro**. **GPT Image 2 não é ilimitado** neste plano — não use.
+2. A resolução é **1K ou 2K**. 4K sai do ilimitado e cobra crédito.
+3. O toggle **Unlimited** está ligado **e** o botão Generate não mostra custo em crédito.
+
+Se qualquer um dos três falhar — toggle ausente, não liga, ou o botão ainda mostra crédito —
+**pare e avise o usuário**. O ilimitado do Nano Banana Pro é uma janela de 7 dias contados da
+compra do plano e pode ter expirado. Os modelos com ilimitado de 365 dias no plano (Nano Banana,
+Seedream 4.5, Seedream 5.0 Lite, GPT Image, Kling O1 Image, Flux.2 Pro 1K) são a alternativa:
+pergunte qual usar. Não gere pagando sem ele dizer que pode.
+
+**Trazer o arquivo para o disco — sem download pelo navegador.** O histórico de gerações do site é
+o mesmo da conta no MCP: chame `show_generations` (`type: "image"`, poucos itens), ache a geração
+pelo prompt e pelo horário, pegue `results.rawUrl` e baixe com
+`curl -L -o seedance-<slug>/references/<nome>.png "<rawUrl>"`. Só se a geração não aparecer ali,
+use o botão Download do site — e peça permissão ao usuário antes, como todo download pelo Chrome.
+
+Armadilha conhecida do site: clicar numa imagem da galeria abre um painel de detalhe que engole os
+cliques seguintes. Feche pelo `X` (ou `Escape`) antes de mexer na barra de prompt.
 
 Imagem pronta, ela volta para o fluxo normal: entra em `seedance-<slug>/references/` ou vai para a
 biblioteca pela página de assets da etapa 4.
@@ -237,8 +255,9 @@ Se o usuário pedir uma etapa específica pelo nome, vá direto nela.
 - **Invoque, não reescreva.** `watch`, `video-teardown`, `video-prompt` e `video-method` são as
   donas dos seus assuntos. Este arquivo só orquestra.
 - **Nunca edite as quatro skills** para fazer o fluxo passar. Se uma delas atrapalha, relate.
-- **Nenhuma imagem pelo Higgsfield.** Editar → Gemini web. Criar → GPT web. Fallback →
-  OpenRouter `muse`, com a chave do VPS1, avisando antes.
+- **Imagem pelo Higgsfield web, no ilimitado.** Editar e criar → Nano Banana Pro em
+  higgsfield.ai, 1K/2K, toggle Unlimited ligado, custo zero conferido antes de gerar. Nunca GPT
+  Image 2. Fallback → MCP `nano_banana_pro` (pago), avisando antes.
 - **Nada pago sem os dois gates**: custo confirmado pelo usuário antes de gastar; QC do V1 antes de
   qualquer extension.
 - **O servidor não gera nada.** Ele lê e grava arquivo. Geração é sua, no terminal.
