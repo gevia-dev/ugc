@@ -21,6 +21,8 @@ review/
 # Lixo do runtime
 *.stackdump
 node_modules/
+__pycache__/
+*.pyc
 
 # Lock de runtime do Claude Code
 .claude/scheduled_tasks.lock
