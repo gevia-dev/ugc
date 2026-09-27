@@ -13,13 +13,19 @@ You don't have a video input; this skill gives you one. A Python script gets cap
 
 ## `SKILL_DIR`
 
-This is a personal skill with a fixed install location. Every `python`/`python3` command below runs a bundled script under `SKILL_DIR/scripts/`:
+Every `python`/`python3` command below runs a bundled script under `SKILL_DIR/scripts/`. `SKILL_DIR` is the **absolute directory containing this SKILL.md you just read** — the harness gave you that path in the Read result. Typically:
 
-```bash
-SKILL_DIR="$HOME/.claude/skills/watch"
+```
+<ugc repo root>/.claude/skills/watch      (project skill — the normal case)
+~/.claude/skills/watch                    (user install, if any)
 ```
 
-On Windows this resolves to `C:\Users\<you>\.claude\skills\watch` — Git Bash's `$HOME` handles that transparently. Substitute that literal path for `${SKILL_DIR}` in every command.
+Substitute that literal path for `${SKILL_DIR}` in every command, and guard once:
+
+```bash
+SKILL_DIR="<absolute directory of this SKILL.md>"
+test -f "$SKILL_DIR/scripts/watch.py" || { echo "wrong SKILL_DIR: $SKILL_DIR" >&2; exit 1; }
+```
 
 ## Step 0 — Setup preflight (runs every `/watch` invocation, silent on success)
 
@@ -217,7 +223,7 @@ Both cloud keys live in `~/.config/watch/.env`, same as the local-Whisper paths.
 
 ### Setting up local Whisper (optional, per-machine)
 
-This is not something the `setup.py` installer wizard does automatically — it means installing `faster-whisper` in a dedicated venv and pointing `/watch` at it. Worth doing if you're transcribing sensitive/local content you don't want to upload, doing it often enough that cloud API cost adds up, or already have a GPU/CPU budget for it. On this machine it's already wired up — `~/.config/watch/.env` points at the `video-teardown` skill's `scripts/transcribe_local.py` under its own dedicated venv (see `reference_local_whisper_ssd_and_gpu_hang` in memory for the model weights / GPU-hang gotchas that shaped that setup). On a new machine, set it up elsewhere (e.g. following that same pattern, or by hand) and wire it into `/watch` by adding three lines to `~/.config/watch/.env`:
+This is not something the `setup.py` installer wizard does automatically — it means installing `faster-whisper` in a dedicated venv and pointing `/watch` at it. Worth doing if you're transcribing sensitive/local content you don't want to upload, doing it often enough that cloud API cost adds up, or already have a GPU/CPU budget for it. In the ugc repo this is done by the repo's own setup (`setup/windows.ps1` or `setup/macos.sh`, see the repo README): it creates the dedicated venv, downloads the `medium` weights, and points `~/.config/watch/.env` at the sibling `video-teardown` skill's `scripts/transcribe_local.py` (the model-weights-on-SSD and GPU-hang gotchas that shaped that setup are in `video-teardown/SKILL.md` §2.3). By hand, wire it into `/watch` by adding three lines to `~/.config/watch/.env`:
 
 ```bash
 WATCH_LOCAL_WHISPER_PYTHON=/path/to/whisper-venv/bin/python   # the venv's own interpreter, not the one running /watch

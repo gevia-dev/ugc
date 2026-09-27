@@ -24,6 +24,7 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -160,7 +161,8 @@ def main():
     except ImportError:
         print(json.dumps({
             "error": "faster-whisper not installed in this interpreter",
-            "hint": "run with D:/tools/whisper-local/venv/Scripts/python.exe",
+            "hint": "run with the venv interpreter in WATCH_LOCAL_WHISPER_PYTHON "
+                    "(~/.config/watch/.env); the repo's setup/ creates it",
         }), file=sys.stderr)
         return 2
 
@@ -170,7 +172,7 @@ def main():
         temp_audio = None
     else:
         audio = (src.parent / (src.stem + ".teardown.wav")) if args.keep_audio \
-            else Path(os.environ.get("TEMP", ".")) / (src.stem + ".teardown.wav")
+            else Path(tempfile.gettempdir()) / (src.stem + ".teardown.wav")
         extract_audio(src, audio)
         temp_audio = None if args.keep_audio else audio
 

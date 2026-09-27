@@ -109,7 +109,7 @@ biblioteca pela página de assets da etapa 4.
 Aqui o humano manda. Você sobe o servidor e sai da frente.
 
 ```bash
-# a partir da raiz do repositório (D:\gevia\ugc)
+# a partir da raiz do repositório ugc (a pasta que tem .claude/ e .mcp.json)
 node .claude/skills/video-workflow/server.mjs
 # -> http://127.0.0.1:7788/ui.html
 ```

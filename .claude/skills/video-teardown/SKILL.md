@@ -78,12 +78,13 @@ Todo comando abaixo roda um script em `SKILL_DIR/scripts/`. `SKILL_DIR` é o
 harness te deu esse caminho no resultado do Read. Tipicamente:
 
 ```
-C:\Users\FELIP\.claude\skills\video-teardown        (Windows, install do usuário)
-~/.claude/skills/video-teardown                      (macOS/Linux)
+<raiz do repo ugc>/.claude/skills/video-teardown     (skill do projeto — o caso normal)
+~/.claude/skills/video-teardown                      (install do usuário, se houver)
 ```
 
 No **Windows use `python`**, não `python3` (o `python3` é o stub da Microsoft
-Store e não roda o script). Guard uma vez no começo:
+Store e não roda o script). No **macOS/Linux use `python3`** onde este arquivo
+diz `python`. Guard uma vez no começo:
 
 ```bash
 SKILL_DIR="<diretório absoluto deste SKILL.md>"
@@ -159,10 +160,11 @@ python "<WATCH_SKILL_DIR>/scripts/watch.py" "<url-ou-arquivo>" \
        --detail balanced --out-dir "$WORK/watch"
 ```
 
-`WATCH_SKILL_DIR` fica em
-`~/.claude/plugins/cache/claude-video/watch/<versão>/skills/watch`. Se a skill
-`watch` não estiver instalada, a saída dela pode ser substituída por frames do
-`grab.py` + Whisper manual, mas **diga isso no relatório**.
+`WATCH_SKILL_DIR` é a pasta irmã desta skill: `"$SKILL_DIR/../watch"` (as duas
+moram lado a lado em `.claude/skills/`). Confira com
+`test -f "$SKILL_DIR/../watch/scripts/watch.py"`. Se a skill `watch` não estiver
+lá, a saída dela pode ser substituída por frames do `grab.py` + Whisper manual,
+mas **diga isso no relatório**.
 
 Depois **`Read` cada frame** que o `watch` listou. Frames que você não abriu não
 existem para o teardown; não escreva sobre um shot cujo frame você não viu.
@@ -263,18 +265,21 @@ Entregue:
 
 ### 2.1 — Transcrição do áudio
 
-**O caminho padrão desta máquina é o Whisper LOCAL** — sem chave de API, sem
-rede, e com os timestamps medidos que a Regra nº 6 exige:
+**O caminho padrão é o Whisper LOCAL** — sem chave de API, sem rede, e com os
+timestamps medidos que a Regra nº 6 exige:
 
 ```bash
-D:/tools/whisper-local/venv/Scripts/python.exe \
-  "$SKILL_DIR/scripts/transcribe_local.py" "$WORK/source.mp4" \
+WHISPER_PY="$(sed -n 's/^WATCH_LOCAL_WHISPER_PYTHON=//p' ~/.config/watch/.env | tr -d '\r')"
+test -x "$WHISPER_PY" || test -f "$WHISPER_PY" || { echo "Whisper local não configurado — rode o setup do repo (README)" >&2; }
+"$WHISPER_PY" "$SKILL_DIR/scripts/transcribe_local.py" "$WORK/source.mp4" \
   --words --out "$WORK/whisper.json"
 ```
 
-O interpretador é o do venv dedicado (`D:/tools/whisper-local/venv`), **não** o
-`python` do PATH — é lá que o `faster-whisper` está instalado. Os pesos ficam em
-`~/.cache/whisper-local/models` (SSD, por decisão medida: ver §2.3).
+O interpretador é o do venv dedicado, **não** o `python` do PATH — é lá que o
+`faster-whisper` está instalado. O caminho dele é por máquina e mora em
+`WATCH_LOCAL_WHISPER_PYTHON` no `~/.config/watch/.env` (o setup do repo, `setup/`,
+cria o venv e grava a chave). Os pesos ficam em `~/.cache/whisper-local/models`
+(SSD, por decisão medida: ver §2.3).
 
 Flags que importam no teardown:
 
@@ -301,21 +306,25 @@ Alternativa por API (Groq/OpenAI), caso um dia haja chave configurada:
 `python "<WATCH_SKILL_DIR>/scripts/whisper.py" "$WORK/source.mp4"`. Mesmo formato
 de segmentos, então o resto do teardown não muda.
 
-### 2.3 — Modelo, disco e GPU (medido nesta máquina)
+### 2.3 — Modelo, disco e GPU
+
+Os números abaixo foram medidos na máquina onde esta skill nasceu (Windows, SSD
+NVMe no `C:` + HD mecânico no `D:`, GTX 1650). Em outra máquina os tempos mudam,
+mas as conclusões valem.
 
 **Os pesos moram no SSD, e isso não é preferência.** Mesmo modelo, mesmo código:
-carregar do `D:` (WD10SPZX, disco mecânico) levou **327 s**; do `C:` (NVMe),
-**2,0 s**. O venv pode ficar no disco lento — os pesos são relidos a cada
-execução. O default do script já aponta para `~/.cache/whisper-local/models`.
+carregar do HD mecânico levou **327 s**; do SSD NVMe, **2,0 s**. O venv pode
+ficar num disco lento — os pesos são relidos a cada execução. O default do script
+já aponta para `~/.cache/whisper-local/models`, que fica no disco do sistema.
 
-**Modelo: o default é `medium`, e é o único em cache.** Medido no mesmo clipe de
-19 s, CPU int8:
+**Modelo: o default é `medium`** (o setup do repo já baixa ele). Medido no mesmo
+clipe de 19 s, CPU int8:
 
 | modelo | disco | load | RTF frio | RTF quente | acertou a frase de teste? |
 |---|---:|---:|---:|---:|---|
 | `small` | 467 MB | 2,0 s | 3,3× | — | **não** — "one of the elephants" (p=0,91 na palavra errada) |
 | **`medium`** | **1,5 GB** | 17,9 s frio / 4,6 s quente | 0,50× | **1,23×** | **sim** — "in front of the elephants" |
-| `large-v3` | ~3,1 GB | — | — | — | não instalado (não cabe no `C:` hoje) |
+| `large-v3` | ~3,1 GB | — | — | — | não medido (não cabia no SSD da máquina de origem) |
 
 **Frio e quente diferem 2,5×** porque na primeira execução o SO ainda não tem os
 pesos em cache. Conte com o pior caso ao planejar: um Reels de 60 s leva de ~50 s
@@ -323,12 +332,13 @@ pesos em cache. Conte com o pior caso ao planejar: um Reels de 60 s leva de ~50 
 primeiro paga o preço cheio.
 
 Pedir `--model small` ou `large-v3` **funciona**, mas dispara download na
-primeira vez (medium levou 48 s; large-v3 leva minutos) e grava no `C:`, que está
-apertado — cheque o espaço antes. **Declare sempre no relatório qual modelo
+primeira vez (medium levou 48 s; large-v3 leva minutos) e grava em
+`~/.cache/whisper-local/models` — cheque o espaço em disco antes. **Declare sempre no relatório qual modelo
 produziu a transcrição**: faz parte da procedência da Fase 8, e a tabela acima
 mostra que o modelo muda o que a fala diz.
 
-**GPU: use `--device cuda` apenas deliberadamente.** Nesta máquina (GTX 1650,
+**GPU: use `--device cuda` apenas deliberadamente** (e nunca no macOS — lá não
+existe CUDA; o default CPU é o caminho). Na máquina de origem (GTX 1650,
 driver 581.57, CUDA 13.0) o CTranslate2 inicializa o contexto CUDA, aloca
 341 MiB e **trava** a 0% de utilização — reproduzido com `tiny` e `small`, com
 cuBLAS 12.9 + cuDNN 9.25 **e** com o par 12.4.5.8 + 9.1.0.70. Por isso o default
