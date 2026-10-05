@@ -111,12 +111,58 @@ Aqui o humano manda. Você sobe o servidor e sai da frente.
 ```bash
 # a partir da raiz do repositório ugc (a pasta que tem .claude/ e .mcp.json)
 node .claude/skills/video-workflow/server.mjs
-# -> http://127.0.0.1:7788/ui.html
+# -> http://127.0.0.1:7788/   (home com todos os projetos)
 ```
 
 Node 22, zero dependência npm, sem build. Flags: `--port N`, `--root DIR`, `--host H`
 (ou `UGC_PORT` / `UGC_ROOT` / `UGC_HOST`). Se a porta 7788 estiver ocupada, o servidor avisa e sai
 — não fique subindo instância nova, feche a outra.
+
+### A home — todos os projetos (`/`)
+
+A entrada é a lista de projetos, não um beat. Cada projeto (o par `seedance-<slug>/` +
+`teardown-<slug>/`; só o teardown já aparece, como "em andamento") vira um card com a miniatura do
+primeiro beat, o título, a data de publicação, o pilar e a trilha do pipeline lida do disco:
+teardown → prompts (chunks, beats, duração) → copy (`COPY.md`) → beats (aprovados, rejeitados,
+pendentes e quando foram enviados) → assets (`assets/approved/`) → vídeo final. O card destaca o
+próximo passo e tem quatro atalhos: **Copy** (abre o `COPY.md` numa gaveta só de leitura, com abas
+para as falas dos prompts e o `REFS.md`; é o primeiro passo da revisão), **Beats** (cai no
+primeiro beat pendente ou rejeitado), **Assets** e **Imagens**.
+
+**Imagens** abre a gaveta na galeria de `seedance-<slug>/references/` (`/?copy=<pasta>&tab=imagens`):
+refs geradas; as esperadas pelo `REFS.md` (títulos/tabelas **CRIAR**/**EDITAR**) que ainda faltam, com
+os candidatos de `_cand*/`; e, recolhidos, os guias de `_from_source/` e os rascunhos `_…`. A aba relê o
+disco a cada 10 s, marca "nova" o que chegou e o card mostra "geradas/esperadas" — dá para acompanhar
+outro agente gerando as refs sem sair da UI.
+
+Os cards se agrupam por campanha (quem não tem metadado cai em "Outros"), em ordem de `order` ou de
+data, com busca (`/`), filtro por etapa e um interruptor para mostrar os arquivados. A página se
+atualiza sozinha a cada 20 s. Links antigos `/#/<projeto>/<beat>` continuam valendo (redirecionam
+para `/ui.html#/…`). Nas páginas de beat e de assets, o topo volta para **Projetos**, mostra o
+título humano e o progresso da revisão, e as abas `1 Copy · 2 Beats · 3 Assets` seguem a ordem do
+trabalho.
+
+#### `project.json` (opcional)
+
+Para o card ter nome humano e cair na campanha certa, crie `seedance-<slug>/project.json`. Todos os
+campos são opcionais; sem o arquivo, o card usa o slug e vai para "Outros".
+
+```json
+{
+  "title": "Muçarela boa se reconhece antes do forno",
+  "campaign": "MegaG — outubro 2026",
+  "order": 8,
+  "publishDate": "2026-10-09",
+  "pillar": "Gerar confiança",
+  "reference": "https://www.tiktok.com/@o_rusticu/video/7619078449319185685",
+  "archived": false,
+  "note": "texto livre que aparece no card"
+}
+```
+
+`order` é número, `publishDate` é `AAAA-MM-DD`, `reference` precisa ser `http(s)` e
+`archived: true` esconde o card por padrão. Campo inválido é ignorado e vira aviso no card; JSON
+ilegível também, sem derrubar a home. A UI só **lê** esse arquivo — quem escreve é você.
 
 ### 4a — uma página por beat (`/ui.html`)
 
@@ -132,16 +178,32 @@ beat, o botão do pager leva para a página de assets.
 ### 4b — página de assets (`/assets.html`)
 
 A skill lê as seções não-beat dos `PROMPT_n` (bíblia de estilo, objetos de cena, continuidade) e
-deduz o que se repete entre os chunks: a pessoa, a locação, o objeto-herói, os props. Cada
-candidato recorrente vira uma linha na tela.
+deduz o que se repete entre os chunks: a pessoa, a locação, o objeto-herói, os props.
 
-- Se o candidato **casa** com um asset que já existe na biblioteca (`assets/`), a tela mostra o
-  casamento e pergunta: **usar? sim / não / novo**. Nada é reaproveitado em silêncio — só depois do
-  clique.
-- Se **não existe**, o usuário sobe as referências (imagens em ângulos diferentes; para a pessoa,
-  também a voz) e o asset nasce na biblioteca.
+A tela tem dois lados:
+
+- **Esquerda — a biblioteca compartilhada** (`assets/`), em grade visual por pasta: capa, nome,
+  tipo, nº de imagens, voz e em quantos vídeos o asset já foi usado. Tem busca, filtro por tipo,
+  pastas (criar e mover, inclusive arrastando o card para a pasta) e "Novo asset".
+- **Direita — este vídeo**: cada candidato recorrente (termo e descrição do prompt, trechos de
+  origem) com a decisão. Ligado, o card mostra **as imagens e o nome do asset escolhido**, não o
+  slug.
+
+Ligar um candidato a um asset:
+
+- Se ele **casa** com um asset que já existe, a tela sugere e pergunta: **aceitar / escolher outro /
+  novo / sem asset**. Nada é reaproveitado em silêncio — só depois do clique.
+- **Escolher** abre a biblioteca filtrada pelo tipo, com os mais parecidos primeiro; também dá para
+  arrastar o card da biblioteca até o candidato, ou ligar pelo visor (lightbox) do asset.
+- **Novo**: o usuário sobe as referências (imagens em ângulos diferentes; para a pessoa, também a
+  voz) e o asset nasce na biblioteca já ligado ao candidato.
+- Toda decisão tem **Desfazer** (toast) e o card ligado tem **Trocar** e **Desfazer**.
 - A biblioteca é **curada à mão** e sobrevive ao projeto: o próximo vídeo com o mesmo apresentador
   reconhece o asset e reaproveita as mesmas refs e a mesma voz.
+
+As imagens da página vêm de `GET /api/asset/thumb?slug=&name=&w=&v=` (miniatura JPEG via ffmpeg,
+com cache em memória e em `<tmp>/video-workflow-asset-thumbs`, fora da biblioteca); o original só é
+baixado pelo link "original" do visor.
 
 Cada clique vira uma linha em `assets/approved/<pastaDoProjeto>.json`. **É esse arquivo, e só ele,
 que a etapa 5 lê.** Um candidato sem decisão não existe para a entrega.
@@ -270,9 +332,16 @@ Se o usuário pedir uma etapa específica pelo nome, vá direto nela.
 ciclo de módulos: `assets-api.mjs` importa `server.mjs` de volta, e um `await` no meio do ciclo
 trava os dois em silêncio). Quem importa `server.mjs` como biblioteca precisa de
 `await m.extensionsReady` antes de chamar `handle()` — senão as rotas `/api/assets`,
-`/api/recurring` e `/api/approved` ainda não existem. Quem sobe pelo CLI não precisa se preocupar:
+`/api/recurring`, `/api/approved`, `/api/review` e as da home (`/api/overview`, `/api/thumb`,
+`/api/doc`, `/api/refs`, `/api/ref`) ainda não existem. Quem sobe pelo CLI não precisa se preocupar:
 o `main()` já espera antes de abrir a porta.
 
 Arquivos: `beats.mjs` (parser/serializer dos chunks), `server.mjs` + `ui.html` (páginas de beat),
-`recurring.mjs` + `assets.mjs` + `assets-api.mjs` + `assets.html` (recorrentes, biblioteca,
-estado aprovado).
+`review.mjs` + `review-api.mjs` (aprovado/rejeitado por beat), `recurring.mjs` + `assets.mjs` +
+`assets-api.mjs` + `assets.html` (recorrentes, biblioteca, estado aprovado), `overview.mjs` +
+`overview-api.mjs` + `projects.html` (home: status de cada projeto lido do disco, só leitura; a
+miniatura sai do ffmpeg — `FFMPEG_BIN` para apontar outro binário — e, sem ele, o frame original),
+`refs.mjs` (galeria de `references/` × refs esperadas do `REFS.md`, só leitura; rotas em
+`overview-api.mjs`) e `common.js` (topo, seletor de projeto e gaveta de copy/imagens, compartilhados
+pelas três páginas). `node overview.mjs [raiz]` imprime no terminal o mesmo status que a home mostra;
+`node refs.mjs <pasta-seedance>` imprime as refs geradas e as que faltam.

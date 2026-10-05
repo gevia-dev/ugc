@@ -146,6 +146,32 @@ body {
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   display: block; max-width: 320px;
 }
+/* navegação: "← Projetos / campanha · #ordem · data" em cima, título humano embaixo */
+a.brand-mark { text-decoration: none; }
+a.brand-mark:hover { background: hsl(var(--primary-hover)); }
+.crumbs { display: flex; align-items: baseline; gap: 6px; min-width: 0; font-size: 11.5px; line-height: 1.25; }
+.crumb-home { flex: none; color: hsl(var(--primary-dark)); font-weight: 650; text-decoration: none; white-space: nowrap; }
+.crumb-home:hover { text-decoration: underline; }
+.crumbs .brand-sub { font-family: inherit; font-size: 11.5px; max-width: 300px; }
+.crumbs .brand-sub::before { content: '/'; margin-right: 6px; color: hsl(var(--muted-foreground) / 0.6); }
+.brand-title.project-title { max-width: 380px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.topbar .brand { flex: 0 1 auto; }
+.topbar .tabs { flex: none; }
+.tab { display: inline-flex; align-items: center; gap: 6px; font-family: inherit; }
+.tab-n {
+  width: 17px; height: 17px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 10px; font-weight: 700; background: hsl(var(--secondary)); color: hsl(var(--muted-foreground));
+}
+.tab.is-active .tab-n { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
+/* progresso da revisão: barra aprovados/rejeitados/pendentes + texto */
+.review-progress { display: inline-flex; align-items: center; gap: 8px; font-size: 11.5px; color: hsl(var(--muted-foreground)); white-space: nowrap; }
+.review-progress[hidden] { display: none; }
+.rp-bar { display: flex; gap: 1px; width: 92px; height: 7px; border-radius: 999px; overflow: hidden; background: hsl(var(--border)); flex: none; }
+.rp-bar i { display: block; height: 100%; }
+.rp-bar .rp-a { background: hsl(142 55% 45%); }
+.rp-bar .rp-r { background: hsl(var(--destructive)); }
+.rp-text b { color: hsl(var(--foreground)); font-weight: 650; }
+.rp-text .rp-rej { color: hsl(0 60% 42%); font-weight: 600; }
 .tabs { display: flex; gap: 4px; margin-left: 6px; }
 .tab {
   font-size: 13px; font-weight: 550;
@@ -173,7 +199,7 @@ select.project-select {
   color: hsl(var(--foreground));
   box-shadow: var(--shadow-inset-subtle);
   cursor: pointer;
-  max-width: 230px;
+  max-width: 210px;
 }
 select.project-select:focus-visible { outline: 2px solid hsl(var(--ring) / 0.5); outline-offset: 1px; }
 
@@ -213,6 +239,7 @@ select.project-select:focus-visible { outline: 2px solid hsl(var(--ring) / 0.5);
   border-color: hsl(var(--primary) / 0.32);
 }
 .btn-send:hover:not(:disabled) { background: hsl(var(--primary) / 0.18); color: hsl(var(--primary-dark)); }
+.btn-send { white-space: nowrap; }
 .btn-send svg { width: 13px; height: 13px; }
 
 /* ------------------------------------------------------------------ rail -- */
@@ -580,39 +607,63 @@ kbd {
 }
 .boot h1 { font-size: 16px; color: hsl(var(--foreground)); margin: 0 0 8px; }
 .boot code { font-family: var(--mono); font-size: 12px; }
+.boot .btn { margin-top: 14px; text-decoration: none; }
 .hide { display: none !important; }
+[hidden] { display: none !important; } /* .stage é grid: sem isto o atributo hidden não esconde */
+
+/* celular: a topbar quebra em duas linhas e perde o que é atalho */
+@media (max-width: 720px) {
+  .topbar { flex-wrap: wrap; row-gap: 6px; padding: 8px 12px; gap: 10px; }
+  .brand { flex: 1 1 100%; }
+  .brand-title.project-title { max-width: none; }
+  .crumbs .brand-sub { max-width: 58vw; }
+  .tabs { margin-left: 0; }
+  .tab { padding: 6px 10px; }
+  select.project-select, .savestate, .kbd-hint { display: none; }
+  .rp-text { display: none; }
+  .btn-send { padding: 7px 9px; }
+  .btn-send .send-label { display: none; }
+  .review-progress { flex: 1; }
+  .rp-bar { flex: 1; width: auto; }
+  .railwrap { padding: 8px 12px 2px; overflow-x: auto; }
+  .stage { padding: 10px 12px; }
+  .reviewbar { flex-wrap: wrap; padding: 7px 12px; }
+  .feedback-input { flex: 1 1 100%; order: 5; }
+  .feedback-save { display: none; }
+}
 </style>
 </head>
 <body>
 
 <header class="topbar">
   <div class="brand">
-    <span class="brand-mark" aria-hidden="true">
+    <a class="brand-mark" href="/" title="Todos os projetos" aria-label="Todos os projetos">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
         <rect x="2" y="5" width="14" height="14" rx="3"></rect>
         <path d="M16 10.5 22 7v10l-6-3.5z"></path>
       </svg>
-    </span>
+    </a>
     <span class="brand-text">
-      <strong class="brand-title">video-workflow</strong>
-      <span class="brand-sub" id="brandSub">carregando…</span>
+      <span class="crumbs"><a class="crumb-home" href="/">← Projetos</a><span class="brand-sub" id="brandSub">carregando…</span></span>
+      <strong class="brand-title project-title" id="projectTitle">video-workflow</strong>
     </span>
   </div>
 
-  <nav class="tabs" aria-label="Seções">
-    <a class="tab is-active" href="#" id="tabBeats">Beats</a>
-    <a class="tab" href="assets.html" id="tabAssets">Assets</a>
+  <nav class="tabs" aria-label="Etapas da revisão">
+    <button class="tab" type="button" id="tabCopy" title="Ler a copy e as falas dos prompts (C)"><span class="tab-n">1</span>Copy</button>
+    <a class="tab is-active" href="#" id="tabBeats" aria-current="page"><span class="tab-n">2</span>Beats</a>
+    <a class="tab" href="assets.html" id="tabAssets"><span class="tab-n">3</span>Assets</a>
   </nav>
 
   <span class="topbar-spacer"></span>
 
-  <span class="review-counts" id="reviewCounts" hidden></span>
+  <span class="review-progress" id="reviewCounts" hidden></span>
   <button class="btn btn-send" id="submitReviewBtn" title="Salva o que estiver pendente e grava o envio (review/&lt;projeto&gt;.md) para o Claude ler na próxima conversa">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg>
-    Enviar respostas
+    <span class="send-label">Enviar respostas</span>
   </button>
 
-  <select class="project-select" id="projectSelect" aria-label="Projeto"></select>
+  <select class="project-select" id="projectSelect" aria-label="Trocar de projeto" title="Trocar de projeto"></select>
   <span class="savestate" id="saveState" data-state="idle"><span class="dot"></span><span id="saveText">pronto</span></span>
 </header>
 
@@ -689,7 +740,7 @@ kbd {
     </button>
   </div>
   <div class="kbd-hint">
-    <kbd>←</kbd> <kbd>→</kbd> navega · <kbd>Ctrl</kbd>+<kbd>S</kbd> salva · <kbd>A</kbd> aprova · <kbd>R</kbd> rejeita · campo salva sozinho ao perder o foco
+    <kbd>←</kbd> <kbd>→</kbd> navega · <kbd>Ctrl</kbd>+<kbd>S</kbd> salva · <kbd>A</kbd> aprova · <kbd>R</kbd> rejeita · <kbd>C</kbd> copy · campo salva sozinho ao perder o foco
   </div>
 </footer>
 
@@ -706,6 +757,7 @@ kbd {
 
 <div class="boot" id="boot"><h1>Carregando projeto…</h1><p>Falando com <code>/api/projects</code>.</p></div>
 
+<script src="common.js"></script>
 <script>
 'use strict';
 
@@ -724,6 +776,7 @@ const FIELDS = [
 
 const state = {
   projects: [],
+  overview: null,      // GET /api/overview — títulos humanos/campanha (opcional: sem ele, usa a pasta)
   dir: null,
   project: null,
   beatId: null,
@@ -780,38 +833,68 @@ function goTo(dir, id, replace) {
 }
 
 /* ------------------------------------------------------------------- boot */
+const HOME_LINK = '<a class="btn" href="/">← Voltar para os projetos</a>';
+
+/** Mostra uma mensagem no lugar do palco (erro, projeto sem beats…). */
+function showMessage(title, html) {
+  $('stage').hidden = true;
+  document.querySelector('body > footer').hidden = true;
+  document.querySelector('.railwrap').hidden = true;
+  $('reviewCounts').hidden = true;
+  $('boot').hidden = false;
+  $('boot').classList.remove('hide');
+  $('boot').innerHTML = '<h1>' + escapeHtml(title) + '</h1><p>' + html + '</p>' + HOME_LINK;
+}
+
+function fillProjectSelect() {
+  VW.fillProjectSelect($('projectSelect'), {
+    dirs: state.projects.map((p) => p.dir),
+    overview: state.overview,
+    current: state.dir || parseHash().dir,
+  });
+}
+
 async function boot() {
+  // a entrada da UI é a home de projetos; ui.html sem projeto no hash volta pra lá
+  if (!parseHash().dir) { location.replace('/'); return; }
   try {
-    const data = await api('/api/projects');
+    const [data, overview] = await Promise.all([
+      api('/api/projects'),
+      VW.loadOverview().catch(() => null),
+    ]);
     state.projects = data.projects;
+    state.overview = overview;
   } catch (err) {
-    $('boot').innerHTML = '<h1>Não consegui falar com o servidor</h1><p>' + escapeHtml(err.message) + '</p>';
-    return;
-  }
-  if (!state.projects.length) {
-    $('boot').innerHTML = '<h1>Nenhum projeto encontrado</h1><p>Nenhuma pasta com <code>PROMPT_n_*.md</code> na raiz.</p>';
+    showMessage('Não consegui falar com o servidor', escapeHtml(err.message));
     return;
   }
 
   const sel = $('projectSelect');
-  sel.innerHTML = state.projects
-    .map((p) => '<option value="' + escapeHtml(p.dir) + '">' + escapeHtml(p.dir) + '</option>')
-    .join('');
-  sel.addEventListener('change', () => goTo(sel.value, ''));
+  fillProjectSelect();
+  sel.addEventListener('change', async () => {
+    await flushPending();
+    await saveFeedback();
+    goTo(sel.value, '');
+  });
 
   window.addEventListener('hashchange', onRoute);
-  const want = parseHash();
-  if (!want.dir) {
-    goTo(state.projects[0].dir, '', true);
-    await onRoute();
-  } else {
-    await onRoute();
-  }
+  await onRoute();
 }
 
 async function onRoute() {
   const want = parseHash();
-  const dir = want.dir && state.projects.some((p) => p.dir === want.dir) ? want.dir : state.projects[0].dir;
+  if (!want.dir) { location.replace('/'); return; }
+  let dir = want.dir;
+  if (!state.projects.some((p) => p.dir === dir)) {
+    // projeto criado depois que a página abriu (outros agentes escrevem em paralelo)
+    try { state.projects = (await api('/api/projects')).projects; } catch { /* segue com a lista que tem */ }
+    if (!state.projects.some((p) => p.dir === dir)) {
+      showMessage('Projeto sem beats para revisar',
+        '<code>' + escapeHtml(dir) + '</code> não existe ou ainda não tem <code>PROMPT_n_*.md</code>.');
+      return;
+    }
+    fillProjectSelect();
+  }
 
   if (dir !== state.dir || !state.project) {
     try {
@@ -823,12 +906,20 @@ async function onRoute() {
       state.project = data.project;
       state.pending.clear();
     } catch (err) {
-      $('boot').innerHTML = '<h1>Erro ao ler o projeto</h1><p>' + escapeHtml(err.message) + '</p>';
+      showMessage('Erro ao ler o projeto', escapeHtml(err.message));
       return;
     }
   }
 
   const beats = state.project.beats;
+  if (!beats.length) {
+    // PROMPT_n existe mas nenhum beat foi reconhecido (ex.: arquivo sendo escrito agora)
+    $('projectSelect').value = dir;
+    renderHeader();
+    showMessage('Nenhum beat reconhecido ainda',
+      'Os <code>PROMPT_n</code> de <code>' + escapeHtml(dir) + '</code> ainda não têm um cabeçalho <code>**BEAT n — ini–fim — NOME**</code>. Recarregue quando os prompts estiverem prontos.');
+    return;
+  }
   let beat = beats.find((b) => b.id === want.id);
   if (!beat) {
     // aceita também o número global do beat (ex.: #/dir/3)
@@ -845,6 +936,8 @@ async function onRoute() {
   $('boot').hidden = true;
   $('boot').classList.add('hide');
   $('stage').hidden = false;
+  document.querySelector('body > footer').hidden = false;
+  document.querySelector('.railwrap').hidden = false;
   render();
 }
 
@@ -872,14 +965,33 @@ function currentBeat() {
   return state.project.beats.find((b) => b.id === state.beatId) || null;
 }
 
+/** Resumo do projeto atual no /api/overview (título humano, campanha…), ou null. */
+function projectSummary() {
+  return VW.findByDir(state.overview, state.dir);
+}
+
+/** Cabeçalho: "← Projetos / campanha · #ordem · data" + título humano. */
+function renderHeader() {
+  const s = projectSummary();
+  const m = s ? s.meta : {};
+  const crumbs = [m.campaign, m.order != null ? '#' + m.order : null, m.publishDate ? VW.fmtDate(m.publishDate) : null].filter(Boolean);
+  $('brandSub').textContent = crumbs.length ? crumbs.join(' · ') : state.dir;
+  $('brandSub').title = state.dir;
+  $('projectTitle').textContent = s ? s.title : state.dir;
+  $('projectTitle').title = (s ? s.title + '\n' : '') + state.dir;
+  $('tabAssets').href = 'assets.html#/' + encodeURIComponent(state.dir);
+  // aba ativa aponta para o beat atual (um "#" vazio mandaria para a home)
+  $('tabBeats').href = '#/' + encodeURIComponent(state.dir) + '/' + encodeURIComponent(state.beatId || '');
+}
+
 function render() {
   const p = state.project;
   const beat = currentBeat();
   if (!beat) return;
 
-  $('brandSub').textContent = p.dir;
-  document.title = 'BEAT ' + beat.position + '/' + beat.total + ' · ' + p.dir;
-  $('tabAssets').href = 'assets.html#/' + encodeURIComponent(p.dir);
+  const s = projectSummary();
+  document.title = 'BEAT ' + beat.position + '/' + beat.total + ' · ' + (s ? s.title : p.dir);
+  renderHeader();
 
   renderRail();
   renderFrame(beat);
@@ -1007,15 +1119,43 @@ function renderPager(beat) {
 
 function renderReviewCounts() {
   const el = $('reviewCounts');
-  if (!state.project) { el.hidden = true; return; }
-  const c = state.reviewCounts || { approved: 0, rejected: 0, withFeedback: 0 };
-  const pending = Math.max(0, state.project.beats.length - c.approved - c.rejected);
+  if (!state.project || !state.project.beats.length) { el.hidden = true; return; }
+  // conta só decisões de beats que existem hoje nos PROMPT_n (ids antigos não contam)
+  const beats = state.project.beats;
+  const recs = (state.review && state.review.beats) || {};
+  const approved = beats.filter((b) => recs[b.id] && recs[b.id].decision === 'approved').length;
+  const rejected = beats.filter((b) => recs[b.id] && recs[b.id].decision === 'rejected').length;
+  const total = beats.length;
+  const pending = Math.max(0, total - approved - rejected);
   el.hidden = false;
-  el.textContent =
-    c.approved + ' aprovado' + (c.approved === 1 ? '' : 's') + ' · ' +
-    c.rejected + ' rejeitado' + (c.rejected === 1 ? '' : 's') + ' · ' +
+  el.title = approved + ' aprovado' + (approved === 1 ? '' : 's') + ' · ' +
+    rejected + ' rejeitado' + (rejected === 1 ? '' : 's') + ' · ' +
     pending + ' pendente' + (pending === 1 ? '' : 's');
+  el.innerHTML =
+    '<span class="rp-bar" aria-hidden="true">' +
+      (approved ? '<i class="rp-a" style="flex:' + approved + '"></i>' : '') +
+      (rejected ? '<i class="rp-r" style="flex:' + rejected + '"></i>' : '') +
+      (pending ? '<i style="flex:' + pending + '"></i>' : '') +
+    '</span>' +
+    '<span class="rp-text"><b>' + approved + '</b>/' + total + ' aprovados' +
+      (rejected ? ' · <span class="rp-rej">' + rejected + ' rej.</span>' : '') +
+    '</span>';
 }
+
+/* --------------------------------------------------------------- copy (1) */
+function openCopy() {
+  if (!state.dir || VW.doc.isOpen()) return;
+  const s = projectSummary();
+  const m = s ? s.meta : {};
+  VW.doc.open({
+    dir: state.dir,
+    title: s ? s.title : state.dir,
+    kicker: [m.campaign, m.order != null ? '#' + m.order : null, m.publishDate ? VW.fmtDate(m.publishDate) : null].filter(Boolean).join(' · ') || 'Leitura da copy',
+    cta: null,
+    onBeat: (id) => navigateTo(id),
+  });
+}
+$('tabCopy').addEventListener('click', openCopy);
 
 function renderReviewBar(beat) {
   const rec = state.review ? state.review.beats[beat.id] : null;
@@ -1288,6 +1428,7 @@ document.addEventListener('keydown', (ev) => {
   if (ev.key === 'ArrowRight') { ev.preventDefault(); step(1); }
   if (ev.key.toLowerCase() === 'a') { ev.preventDefault(); setDecision('approved'); }
   if (ev.key.toLowerCase() === 'r') { ev.preventDefault(); setDecision('rejected'); }
+  if (ev.key.toLowerCase() === 'c') { ev.preventDefault(); openCopy(); }
 });
 
 window.addEventListener('beforeunload', (ev) => {
