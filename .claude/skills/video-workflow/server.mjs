@@ -4,9 +4,10 @@
  *
  * Zero dependência: só `node:` builtins. Node 22+.
  *
- * Serve a UI (`ui.html`) e uma API JSON sobre `beats.mjs`:
+ * Serve a UI e uma API JSON sobre `beats.mjs`:
  *
- *   GET  /                          -> ui.html
+ *   GET  /                          -> projects.html (home de projetos)
+ *   GET  /ui.html#/<dir>/<beat>     -> página de um beat (rota no hash, no browser)
  *   GET  /<arquivo estático>        -> arquivo da pasta da skill (html/css/js/svg/png/ico)
  *   GET  /api/health                -> { ok: true, ... }
  *   GET  /api/projects              -> { ok, projects: [...] }
@@ -36,6 +37,14 @@
  *   POST /api/review             (JSON)        -> aprova/rejeita UM beat (+ feedback)
  *   POST /api/review/clear       (JSON)        -> volta um beat a "pendente"
  *   POST /api/review/submit      (JSON)        -> carimba envio + escreve o digest .md
+ *
+ * A home de projetos usa o mesmo ponto, em `overview-api.mjs` (só leitura):
+ *
+ *   GET  /api/overview[?dir=|&slug=]           -> projetos + status do pipeline
+ *   GET  /api/thumb?slug=&w=                   -> miniatura JPEG (ffmpeg, cache em memória)
+ *   GET  /api/doc?dir=&name=COPY.md|REFS.md    -> texto do COPY.md / REFS.md
+ *   GET  /api/refs?dir=                        -> imagens de references/ + esperadas do REFS.md
+ *   GET  /api/ref?dir=&path=&w=                -> uma imagem de references/ (w: miniatura JPEG)
  *
  * Quem importa este módulo como biblioteca deve aguardar `extensionsReady`
  * antes de chamar `handle()`, senão as rotas acima ainda não existem.
@@ -304,9 +313,9 @@ route('POST', '/api/beat', async (req, res) => {
   });
 });
 
-/** Estático: `/` -> ui.html, `/<nome>.html|css|js|...` -> arquivo da pasta da skill. */
+/** Estático: `/` -> projects.html, `/<nome>.html|css|js|...` -> arquivo da pasta da skill. */
 function staticHandler(req, res, url) {
-  const name = url.pathname === '/' ? 'ui.html' : url.pathname.slice(1);
+  const name = url.pathname === '/' ? 'projects.html' : url.pathname.slice(1);
   if (!STATIC_NAME_RE.test(name)) {
     sendError(res, 404, `rota não encontrada: ${url.pathname}`);
     return;
@@ -346,10 +355,11 @@ export function createVideoWorkflowServer() {
 }
 
 // ---------------------------------------------------------------------------
-// extensões (parte 3 — assets · revisão de beat)
+// extensões (parte 3 — assets · revisão de beat · home de projetos)
 //
-// Registra /api/assets & cia. (assets-api.mjs) e /api/review & cia.
-// (review-api.mjs) via `route()` — o dispatcher `handle()` não muda.
+// Registra /api/assets & cia. (assets-api.mjs), /api/review & cia.
+// (review-api.mjs) e /api/overview & cia. (overview-api.mjs) via `route()` —
+// o dispatcher `handle()` não muda.
 //
 // Os imports são dinâmicos e NÃO são aguardados aqui de propósito: os dois
 // módulos importam este de volta (usando o ponto de extensão documentado no
@@ -362,6 +372,7 @@ export function createVideoWorkflowServer() {
 export const extensionsReady = Promise.all([
   import('./assets-api.mjs'),
   import('./review-api.mjs'),
+  import('./overview-api.mjs'),
 ]);
 
 // ---------------------------------------------------------------------------
